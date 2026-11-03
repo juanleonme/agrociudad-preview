@@ -1,0 +1,2231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
+  <title>Agrociudad — Red de Productores Locales y Comercio Vivo</title>
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#00572b" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#042914" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --brand-primary: #00a651;
+      --brand-dark: #007a3b;
+      --brand-deep: #04381d;
+      --brand-light: #eaf8ef;
+      --brand-glow: rgba(0, 166, 81, 0.16);
+      
+      --accent-warm: #e88d24;
+      --accent-warm-light: #fef4e8;
+      
+      --bg-page: #f6f5f1;
+      --bg-card: #ffffff;
+      --bg-elevated: #ffffff;
+      --bg-input: #eeede8;
+      
+      --text-ink: #111a13;
+      --text-muted: #4e5e53;
+      --text-subtle: #7d8f83;
+      --text-inverse: #ffffff;
+      
+      --border-subtle: #e2e0d6;
+      --border-strong: #cac7bb;
+      
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 26px;
+      --radius-full: 9999px;
+      
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+      --shadow-card: 0 4px 16px rgba(17, 26, 19, 0.07);
+      --shadow-floating: 0 14px 36px rgba(17, 26, 19, 0.14);
+      
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --app-mobile-width: 430px;
+      --app-tablet-width: 840px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: #121c15;
+      color: var(--text-ink);
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background-color 0.3s ease;
+    }
+
+    /* Screen Simulator Container */
+    .simulator-shell {
+      width: 100%;
+      min-height: 100vh;
+      background: var(--bg-page);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Mobile Mode (Default) */
+    body.view-mobile {
+      background-color: #121c15;
+    }
+    body.view-mobile .simulator-shell {
+      max-width: var(--app-mobile-width);
+      margin: 0 auto;
+      box-shadow: 0 0 55px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Tablet Mode (iPad Style) */
+    body.view-tablet {
+      background-color: #152219;
+    }
+    body.view-tablet .simulator-shell {
+      max-width: var(--app-tablet-width);
+      margin: 20px auto;
+      border-radius: 24px;
+      box-shadow: 0 0 65px rgba(0, 0, 0, 0.55);
+      overflow: hidden;
+    }
+
+    /* Desktop Mode (Full Width Web) */
+    body.view-desktop {
+      background-color: var(--bg-page);
+    }
+    body.view-desktop .simulator-shell {
+      max-width: 100%;
+      width: 100%;
+      margin: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    /* Floating View Switcher Dock (Right Side, Icons Only) */
+    .view-switcher-dock {
+      position: fixed;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(17, 26, 19, 0.94);
+      backdrop-filter: blur(16px);
+      padding: 10px 7px;
+      border-radius: var(--radius-full);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: var(--shadow-floating);
+      z-index: 9999;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .view-dock-btn {
+      background: transparent;
+      border: none;
+      color: #92ab9b;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .view-dock-btn svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.1;
+      transition: transform 0.2s ease;
+    }
+    .view-dock-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.14);
+    }
+    .view-dock-btn:hover svg {
+      transform: scale(1.1);
+    }
+    .view-dock-btn.active {
+      background: var(--brand-primary);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(0, 166, 81, 0.45);
+    }
+
+    /* Tooltip on Hover */
+    .view-dock-btn::before {
+      content: attr(data-tooltip);
+      position: absolute;
+      right: 56px;
+      top: 50%;
+      transform: translateY(-50%) scale(0.9);
+      background: #111a13;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px 11px;
+      border-radius: var(--radius-sm);
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.15s ease;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .view-dock-btn:hover::before {
+      opacity: 1;
+      transform: translateY(-50%) scale(1);
+    }
+
+    /* ========================================================= */
+    /* 1. MOBILE & TABLET HEADER (Hidden in Desktop) */
+    /* ========================================================= */
+    .mobile-app-header {
+      background: linear-gradient(175deg, var(--brand-deep) 0%, var(--brand-dark) 100%);
+      color: var(--text-inverse);
+      padding: 16px 18px 22px;
+      border-bottom-left-radius: var(--radius-xl);
+      border-bottom-right-radius: var(--radius-xl);
+      box-shadow: 0 8px 24px rgba(4, 56, 29, 0.22);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    body.view-desktop .mobile-app-header {
+      display: none !important;
+    }
+
+    .top-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .town-pill-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      padding: 8px 16px;
+      border-radius: var(--radius-full);
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: transform 0.12s ease, background 0.15s ease;
+    }
+    .town-pill-btn:active {
+      transform: scale(0.96);
+      background: rgba(255, 255, 255, 0.25);
+    }
+    .town-pill-btn svg {
+      width: 15px;
+      height: 15px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.2;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .icon-action-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      cursor: pointer;
+      position: relative;
+    }
+    .icon-action-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.1;
+    }
+    .badge-dot {
+      position: absolute;
+      top: 7px;
+      right: 7px;
+      width: 8px;
+      height: 8px;
+      background: var(--accent-warm);
+      border: 2px solid var(--brand-dark);
+      border-radius: 50%;
+    }
+
+    .brand-hero {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .brand-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-logo-img {
+      height: 30px;
+      object-fit: contain;
+    }
+    .offline-tag {
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      color: #a7f3d0;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .offline-tag::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: #34d399;
+      border-radius: 50%;
+    }
+    .brand-claim {
+      font-size: 13.5px;
+      color: #d1fae5;
+      font-weight: 500;
+      line-height: 1.35;
+    }
+
+    /* Mobile Search Bar */
+    .mobile-search-wrap {
+      position: relative;
+      width: 100%;
+    }
+    .search-input-field {
+      width: 100%;
+      background: #ffffff;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 14px 44px 14px 44px;
+      font-size: 15px;
+      font-family: inherit;
+      color: var(--text-ink);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+      outline: none;
+      transition: box-shadow 0.2s ease;
+    }
+    .search-input-field:focus {
+      box-shadow: 0 0 0 3px rgba(0, 166, 81, 0.35), 0 6px 20px rgba(0,0,0,0.15);
+    }
+    .search-icon-left {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 19px;
+      height: 19px;
+      stroke: var(--text-subtle);
+      fill: none;
+      stroke-width: 2.2;
+      pointer-events: none;
+    }
+    .clear-search-btn {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--bg-input);
+      border: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    /* ========================================================= */
+    /* 2. DEDICATED DESKTOP NAVBAR & HERO (Visible ONLY in Desktop) */
+    /* ========================================================= */
+    .desktop-navbar {
+      display: none;
+      background: #ffffff;
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    }
+    body.view-desktop .desktop-navbar {
+      display: block;
+    }
+
+    .desktop-navbar-inner {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 0 36px;
+      height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .nav-left-brand {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .desktop-logo {
+      height: 32px;
+      object-fit: contain;
+    }
+    .desktop-town-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-page);
+      border: 1px solid var(--border-subtle);
+      padding: 8px 16px;
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-ink);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .desktop-town-btn:hover {
+      background: var(--brand-light);
+      border-color: var(--brand-primary);
+      color: var(--brand-dark);
+    }
+
+    .nav-center-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+    .nav-link-item {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.15s ease;
+    }
+    .nav-link-item:hover {
+      color: var(--brand-dark);
+    }
+
+    .nav-right-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .nav-post-cta {
+      background: var(--brand-primary);
+      color: #ffffff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: var(--radius-full);
+      font-size: 13.5px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(0, 166, 81, 0.25);
+      transition: all 0.15s ease;
+    }
+    .nav-post-cta:hover {
+      background: var(--brand-dark);
+      transform: translateY(-1px);
+    }
+
+    /* Desktop Hero Section */
+    .desktop-hero {
+      display: none;
+      position: relative;
+      background: linear-gradient(135deg, rgba(4, 56, 29, 0.94) 0%, rgba(0, 122, 59, 0.90) 100%), url('https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+      color: #ffffff;
+      padding: 70px 36px 80px;
+      text-align: center;
+    }
+    body.view-desktop .desktop-hero {
+      display: block;
+    }
+
+    .desktop-hero-container {
+      max-width: 980px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .hero-badge-pill {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      backdrop-filter: blur(8px);
+      color: #a7f3d0;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 6px 16px;
+      border-radius: var(--radius-full);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hero-main-title {
+      font-size: 44px;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .hero-sub-claim {
+      font-size: 18px;
+      line-height: 1.5;
+      color: #e6f4ec;
+      max-width: 740px;
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+
+    /* Desktop Mega Search Box */
+    .hero-search-console {
+      width: 100%;
+      max-width: 820px;
+      background: #ffffff;
+      border-radius: var(--radius-full);
+      padding: 8px 10px 8px 26px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 16px 44px rgba(0,0,0,0.28);
+      border: 2px solid rgba(255, 255, 255, 0.4);
+    }
+    .hero-search-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 15.5px;
+      font-family: inherit;
+      color: var(--text-ink);
+      background: transparent;
+    }
+    .search-divider {
+      width: 1px;
+      height: 32px;
+      background: var(--border-subtle);
+    }
+    .hero-filter-dropdown-btn {
+      background: transparent;
+      border: none;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--brand-dark);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+    }
+    .hero-search-submit-btn {
+      background: var(--brand-primary);
+      color: #ffffff;
+      border: none;
+      padding: 13px 28px;
+      border-radius: var(--radius-full);
+      font-size: 14.5px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(0, 166, 81, 0.4);
+      transition: all 0.15s ease;
+    }
+    .hero-search-submit-btn:hover {
+      background: var(--brand-dark);
+      transform: scale(1.02);
+    }
+
+    .hero-tags-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #c9e7d5;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .hero-quick-tag {
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.15s;
+    }
+    .hero-quick-tag:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .hero-trust-metrics {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+      margin-top: 10px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .trust-metric-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .metric-number {
+      font-size: 20px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+    .metric-label {
+      font-size: 12px;
+      color: #a7f3d0;
+      font-weight: 600;
+    }
+
+    /* ========================================================= */
+    /* 3. MAIN BODY & SPACING CORRECTIONS */
+    /* ========================================================= */
+    .web-container {
+      width: 100%;
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+    body.view-tablet .web-container {
+      padding: 0 24px;
+    }
+    body.view-desktop .web-container {
+      padding: 0 40px;
+    }
+
+    .main-scroll-content {
+      flex: 1;
+      padding-bottom: 95px;
+    }
+    body.view-desktop .main-scroll-content {
+      padding-bottom: 40px;
+    }
+
+    /* Section Headers */
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 26px 0 14px;
+    }
+    .section-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-ink);
+      letter-spacing: -0.01em;
+    }
+    body.view-desktop .section-title {
+      font-size: 22px;
+    }
+    .section-action {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--brand-dark);
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    /* Horizontal Stories Rail (Cosechas del Día) */
+    .stories-rail {
+      display: flex;
+      gap: 16px;
+      padding: 6px 0 18px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .stories-rail::-webkit-scrollbar {
+      display: none;
+    }
+
+    .story-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      scroll-snap-align: start;
+      flex-shrink: 0;
+      width: 76px;
+    }
+    body.view-desktop .story-item {
+      width: 90px;
+      gap: 10px;
+    }
+    .story-ring {
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      padding: 3px;
+      background: linear-gradient(135deg, var(--brand-primary), var(--accent-warm));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: transform 0.15s ease;
+    }
+    body.view-desktop .story-ring {
+      width: 78px;
+      height: 78px;
+    }
+    .story-item:hover .story-ring {
+      transform: scale(1.05);
+    }
+    .story-avatar {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 2px solid #ffffff;
+      object-fit: cover;
+      background: var(--bg-card);
+    }
+    .story-badge-live {
+      position: absolute;
+      bottom: -4px;
+      background: var(--brand-primary);
+      color: #ffffff;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 6px;
+      border: 1.5px solid #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .story-author-name {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-ink);
+      text-align: center;
+      width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Category Pill Carousel */
+    .categories-bar {
+      display: flex;
+      gap: 10px;
+      padding: 6px 0 20px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .categories-bar::-webkit-scrollbar {
+      display: none;
+    }
+    .category-chip {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-ink);
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      touch-action: manipulation;
+    }
+    .category-chip:active {
+      transform: scale(0.96);
+    }
+    .category-chip.active {
+      background: var(--brand-deep);
+      color: #ffffff;
+      border-color: var(--brand-deep);
+      box-shadow: 0 4px 12px rgba(4, 56, 29, 0.22);
+    }
+
+    /* Featured Sponsor Hero Card & Grid (2 Destacados on Desktop) */
+    .featured-wrap {
+      padding: 6px 0 24px;
+    }
+    .sponsors-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    body.view-desktop .sponsors-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    .sponsor-hero-card {
+      background: #ffffff;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+      border: 1px solid var(--border-subtle);
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .sponsor-hero-card:hover {
+      box-shadow: var(--shadow-floating);
+      transform: translateY(-2px);
+    }
+    body.view-tablet .sponsor-hero-card,
+    body.view-desktop .sponsor-hero-card {
+      display: grid;
+      grid-template-columns: 42% 58%;
+    }
+
+    .sponsor-img-container {
+      height: 180px;
+      width: 100%;
+      position: relative;
+      background: #2a3d31;
+    }
+    body.view-tablet .sponsor-img-container,
+    body.view-desktop .sponsor-img-container {
+      height: 100%;
+      min-height: 240px;
+    }
+    .sponsor-cover-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .sponsor-gradient-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.65) 100%);
+    }
+    .badge-destacado {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      background: rgba(17, 26, 19, 0.88);
+      backdrop-filter: blur(8px);
+      color: #f7ca5e;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 5px 12px;
+      border-radius: var(--radius-full);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border: 1px solid rgba(247, 202, 94, 0.35);
+    }
+
+    .sponsor-meta-overlay {
+      position: absolute;
+      bottom: 14px;
+      left: 16px;
+      right: 16px;
+      color: #ffffff;
+    }
+    body.view-tablet .sponsor-meta-overlay,
+    body.view-desktop .sponsor-meta-overlay {
+      display: none; /* In tablet/desktop, title and info move to right body */
+    }
+
+    .sponsor-title-text {
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.25;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+    .sponsor-location-text {
+      font-size: 12.5px;
+      color: #e0ece4;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 3px;
+    }
+
+    /* Right Body of Sponsor Card */
+    .sponsor-body {
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      justify-content: center;
+    }
+    body.view-tablet .sponsor-body {
+      padding: 24px 28px;
+      gap: 14px;
+    }
+    body.view-desktop .sponsor-body {
+      padding: 24px 26px;
+      gap: 12px;
+    }
+
+    .sponsor-desktop-heading {
+      display: none;
+    }
+    body.view-tablet .sponsor-desktop-heading,
+    body.view-desktop .sponsor-desktop-heading {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .sponsor-desktop-title {
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--text-ink);
+    }
+    .sponsor-desktop-loc {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sponsor-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+    body.view-desktop .sponsor-desc {
+      font-size: 13.5px;
+    }
+
+    .sponsor-action-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 4px;
+    }
+    .sponsor-action-cta {
+      background: var(--brand-deep);
+      color: #ffffff;
+      border: none;
+      padding: 9px 18px;
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    .sponsor-action-cta:hover {
+      background: var(--brand-dark);
+    }
+      font-weight: 800;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    .sponsor-action-cta:hover {
+      background: var(--brand-dark);
+    }
+
+    /* Main Directory Feed */
+    .feed-container {
+      padding: 6px 0 30px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+    body.view-tablet .feed-container {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 22px;
+    }
+    body.view-desktop .feed-container {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+
+    /* Business Item Card */
+    .business-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      cursor: pointer;
+    }
+    .business-card:hover {
+      box-shadow: var(--shadow-card);
+      transform: translateY(-2px);
+    }
+
+    .card-media-box {
+      height: 165px;
+      position: relative;
+      background: #e2e1d9;
+    }
+    .card-photo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .card-producer-pill {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(6px);
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--brand-deep);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .fav-toggle-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(17, 26, 19, 0.55);
+      backdrop-filter: blur(6px);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+    .fav-toggle-btn.favorited {
+      background: #ffffff;
+      color: #e53935;
+    }
+
+    .card-content {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+    .card-header-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .card-name {
+      font-size: 16.5px;
+      font-weight: 800;
+      color: var(--text-ink);
+      line-height: 1.25;
+    }
+    .card-rating {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text-ink);
+      background: #fff8e6;
+      padding: 3px 7px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      border: 1px solid #fae8b8;
+    }
+    .card-rating svg {
+      width: 12px;
+      height: 12px;
+      fill: #e88d24;
+    }
+
+    .card-category-line {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .dot-separator {
+      width: 3px;
+      height: 3px;
+      background: var(--text-subtle);
+      border-radius: 50%;
+    }
+
+    .card-tags-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 2px 0 4px;
+    }
+    .tag-chip {
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-page);
+      color: var(--text-muted);
+    }
+
+    .card-footer-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 12px;
+      margin-top: auto;
+    }
+    .distance-indicator {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .distance-indicator svg {
+      width: 14px;
+      height: 14px;
+      stroke: var(--brand-dark);
+      fill: none;
+      stroke-width: 2.2;
+    }
+
+    .whatsapp-quick-btn {
+      background: #25d366;
+      color: #ffffff;
+      border: none;
+      padding: 7px 15px;
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);
+      transition: transform 0.12s ease;
+    }
+    .whatsapp-quick-btn:hover {
+      background: #20bd5a;
+    }
+
+    /* Fixed Bottom Navigation (Mobile App Standard) */
+    .bottom-nav-bar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: var(--app-mobile-width);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(14px);
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
+      z-index: 900;
+      transition: max-width 0.3s ease;
+    }
+    body.view-tablet .bottom-nav-bar {
+      max-width: var(--app-tablet-width);
+    }
+    body.view-desktop .bottom-nav-bar {
+      display: none !important;
+    }
+
+    .nav-tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      background: none;
+      border: none;
+      color: var(--text-subtle);
+      cursor: pointer;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      touch-action: manipulation;
+      transition: color 0.15s ease;
+    }
+    .nav-tab-item.active {
+      color: var(--brand-dark);
+    }
+    .nav-tab-item svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.1;
+    }
+    .nav-tab-label {
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    /* Web Footer (Only visible on Desktop) */
+    .desktop-footer {
+      display: none;
+      background: #0d1510;
+      color: #92ab9b;
+      padding: 60px 40px 40px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      margin-top: 60px;
+    }
+    body.view-desktop .desktop-footer {
+      display: block;
+    }
+    .footer-inner-grid {
+      max-width: 1320px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2.2fr 1fr 1fr 1.2fr;
+      gap: 48px;
+      margin-bottom: 40px;
+    }
+    .footer-col h4 {
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+    .footer-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 13.5px;
+    }
+    .footer-col a {
+      color: #92ab9b;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .footer-col a:hover {
+      color: var(--brand-primary);
+    }
+    .footer-bottom-line {
+      max-width: 1320px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 24px;
+      font-size: 12.5px;
+    }
+
+    /* Interactive Bottom Sheet (Detail Drawer) */
+    .sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(17, 26, 19, 0.65);
+      backdrop-filter: blur(4px);
+      z-index: 10000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .sheet-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .bottom-sheet {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translate(-50%, 105%);
+      width: 100%;
+      max-width: 520px;
+      background: var(--bg-card);
+      border-top-left-radius: var(--radius-xl);
+      border-top-right-radius: var(--radius-xl);
+      max-height: 85vh;
+      overflow-y: auto;
+      z-index: 10001;
+      box-shadow: 0 -8px 32px rgba(0,0,0,0.28);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    }
+    .sheet-backdrop.open .bottom-sheet {
+      transform: translate(-50%, 0);
+    }
+    .sheet-handle-bar {
+      width: 44px;
+      height: 5px;
+      background: var(--border-strong);
+      border-radius: var(--radius-full);
+      margin: 10px auto 14px;
+    }
+    .sheet-hero-img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+    .sheet-body {
+      padding: 20px;
+    }
+
+    /* Modal for Town Switcher */
+    .town-modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.92);
+      width: 90%;
+      max-width: 380px;
+      background: #ffffff;
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      z-index: 10002;
+      box-shadow: var(--shadow-floating);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .town-modal.open {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    .town-list {
+      list-style: none;
+      margin: 16px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .town-opt-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 16px;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      background: var(--bg-page);
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--text-ink);
+      cursor: pointer;
+    }
+    .town-opt-btn.active {
+      background: var(--brand-light);
+      border-color: var(--brand-primary);
+      color: var(--brand-deep);
+    }
+
+    /* Story Modal Viewer */
+    .story-viewer-modal {
+      position: fixed;
+      inset: 0;
+      background: #000000;
+      z-index: 20000;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .story-viewer-modal.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .story-progress-bar {
+      height: 3px;
+      background: rgba(255,255,255,0.3);
+      margin: 12px 16px 8px;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .story-progress-fill {
+      width: 0%;
+      height: 100%;
+      background: #ffffff;
+      transition: width 0.1s linear;
+    }
+    .story-top-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px 10px;
+      color: #ffffff;
+    }
+    .story-media-view {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .story-main-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .story-caption-box {
+      position: absolute;
+      bottom: 26px;
+      left: 16px;
+      right: 16px;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(10px);
+      padding: 16px;
+      border-radius: var(--radius-md);
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body class="view-desktop">
+
+  <!-- Floating View Switcher Dock (Right Side, Icons Only) -->
+  <aside class="view-switcher-dock" aria-label="Selector de Vista">
+    <button class="view-dock-btn" id="btnModeMobile" onclick="setViewMode('mobile')" data-tooltip="📱 Vista Celular (iPhone)">
+      <svg viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
+    </button>
+    <button class="view-dock-btn" id="btnModeTablet" onclick="setViewMode('tablet')" data-tooltip="📲 Vista Tablet (iPad)">
+      <svg viewBox="0 0 24 24"><rect width="18" height="14" x="3" y="5" rx="2" ry="2"/><path d="M12 15h.01"/></svg>
+    </button>
+    <button class="view-dock-btn active" id="btnModeDesktop" onclick="setViewMode('desktop')" data-tooltip="💻 Vista Web Escritorio (Full Width)">
+      <svg viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+    </button>
+  </aside>
+
+  <!-- App Simulation Shell -->
+  <div class="simulator-shell" id="appShell">
+
+    <!-- ========================================== -->
+    <!-- 1. MOBILE/TABLET HEADER (Hidden on Desktop) -->
+    <!-- ========================================== -->
+    <header class="mobile-app-header">
+      <div class="top-meta-row">
+        <button class="town-pill-btn" onclick="openTownModal()">
+          <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          <span id="currentTownLabel">Cajicá, Cundinamarca</span>
+          <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+
+        <div class="header-actions">
+          <button class="icon-action-btn" title="Notificaciones locales" onclick="alert('Notificación: Cosecha fresca de fresas en Vereda Chuntame disponible hoy.')">
+            <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span class="badge-dot"></span>
+          </button>
+          <button class="icon-action-btn" title="Modo PWA Offline" onclick="alert('PWA Offline: 124 negocios de Cajicá guardados para consultar sin internet.')">
+            <svg viewBox="0 0 24 24"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m8 17 4 4 4-4"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="brand-hero">
+        <div class="brand-badge-row">
+          <img src="data:image/png;base64,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" alt="Agrociudad" class="brand-logo-img" onerror="this.outerHTML='<span style=\'font-weight:900; font-size:22px; color:#fff;\'>AGROCIUDAD</span>'" />
+          <span class="offline-tag">Sabana Centro</span>
+        </div>
+        <p class="brand-claim">El directorio vivo de productores del campo y comercio local</p>
+      </div>
+
+      <div class="mobile-search-wrap">
+        <svg class="search-icon-left" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input 
+          type="search" 
+          id="mainSearchInput" 
+          class="search-input-field" 
+          placeholder="Buscar lechugas, café de origen, panadería..." 
+          oninput="handleSearch(this.value)"
+        />
+        <button class="clear-search-btn" id="btnClearSearch" onclick="clearSearch()">✕</button>
+      </div>
+    </header>
+
+    <!-- ========================================== -->
+    <!-- 2. DESKTOP NAVBAR (Visible ONLY on Desktop) -->
+    <!-- ========================================== -->
+    <header class="desktop-navbar">
+      <div class="desktop-navbar-inner">
+        <div class="nav-left-brand">
+          <img src="data:image/png;base64,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" alt="Agrociudad" class="desktop-logo" onerror="this.outerHTML='<span style=\'font-weight:900; font-size:24px; color:var(--brand-deep);\'>agro<span style=\'color:var(--brand-primary)\'>ciudad</span>.com</span>'" />
+          <button class="desktop-town-btn" onclick="openTownModal()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+            <span id="currentTownLabelDesktop">Cajicá, Cundinamarca</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+        </div>
+
+        <nav class="nav-center-links">
+          <a href="#cosechas" class="nav-link-item">🌱 Cosechas de Hoy</a>
+          <a href="#directorio" class="nav-link-item">🧀 Productores</a>
+          <a href="#mapa" class="nav-link-item" onclick="alert('Abriendo Mapa Interactivo')">🗺️ Mapa Sabana</a>
+          <a href="#patrocinadores" class="nav-link-item">⭐ Destacados</a>
+        </nav>
+
+        <div class="nav-right-actions">
+          <button class="icon-action-btn" style="background:var(--bg-page); color:var(--text-ink); border-color:var(--border-subtle);" title="Notificaciones locales" onclick="alert('Notificaciones de Cajicá')">
+            <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span class="badge-dot" style="border-color:#fff;"></span>
+          </button>
+          <button class="nav-post-cta" onclick="alert('¡Sumá tu finca o negocio a Agrociudad!')">
+            + Publicar Negocio
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ========================================== -->
+    <!-- 3. DESKTOP DEDICATED HERO (Full Width Web)  -->
+    <!-- ========================================== -->
+    <section class="desktop-hero">
+      <div class="desktop-hero-container">
+        <span class="hero-badge-pill">🌱 Red Agroecológica y Comercio Local · Sabana Centro</span>
+        <h1 class="hero-main-title">El campo vivo y el comercio local de tu municipio, directo en tu mesa.</h1>
+        <p class="hero-sub-claim">Conectá sin intermediarios con más de 120 familias campesinas, productores agroecológicos, queserías y comercios tradicionales de Cajicá y sus veredas.</p>
+
+        <!-- Desktop Mega Search Bar -->
+        <div class="hero-search-console">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--brand-dark)" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input 
+            type="search" 
+            id="desktopHeroSearchInput" 
+            class="hero-search-input" 
+            placeholder="¿Qué producto buscas hoy? (ej. fresas de altura, masa madre, miel pura...)"
+            oninput="handleSearch(this.value)"
+          />
+          <div class="search-divider"></div>
+          <button class="hero-filter-dropdown-btn" onclick="openTownModal()">
+            <span>📍 Cajicá</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="search-divider"></div>
+          <button class="hero-search-submit-btn" onclick="document.getElementById('cardsGrid').scrollIntoView({behavior: 'smooth'})">
+            <span>Explorar</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </button>
+        </div>
+
+        <div class="hero-tags-row">
+          <span>Popular hoy en Cajicá:</span>
+          <span class="hero-quick-tag" onclick="quickFilterTag('fresas')">🍓 Fresas de altura</span>
+          <span class="hero-quick-tag" onclick="quickFilterTag('queso')">🧀 Queso campesino</span>
+          <span class="hero-quick-tag" onclick="quickFilterTag('café')">☕ Café de origen</span>
+          <span class="hero-quick-tag" onclick="quickFilterTag('sagú')">🥖 Pan de sagú</span>
+          <span class="hero-quick-tag" onclick="quickFilterTag('miel')">🍯 Miel pura</span>
+        </div>
+
+        <div class="hero-trust-metrics">
+          <div class="trust-metric-item">
+            <span class="metric-number">124</span>
+            <span class="metric-label">Productores en Cajicá</span>
+          </div>
+          <div class="trust-metric-item">
+            <span class="metric-number">5</span>
+            <span class="metric-label">Municipios Cobertura</span>
+          </div>
+          <div class="trust-metric-item">
+            <span class="metric-number">100%</span>
+            <span class="metric-label">Trato Directo WhatsApp</span>
+          </div>
+          <div class="trust-metric-item">
+            <span class="metric-number">0%</span>
+            <span class="metric-label">Comisiones a Productores</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 4. MAIN CONTENT AREA (Stories, Cats, Cards) -->
+    <!-- ========================================== -->
+    <main class="main-scroll-content">
+      <div class="web-container">
+
+        <!-- Stories / Cosechas del Día -->
+        <section id="cosechas">
+          <div class="section-head">
+            <h2 class="section-title">🌱 Cosechas & Historias de Hoy en la Sabana</h2>
+            <span class="section-action" onclick="alert('Explorando todas las historias de 24h')">Ver todas →</span>
+          </div>
+          
+          <div class="stories-rail" id="storiesRail">
+            <!-- Story 1 -->
+            <div class="story-item" onclick="openStoryModal('Finca El Paraíso', '¡Recién cosechadas las fresas de altura en Chuntame! Entregas hoy en el centro.', 'https://images.unsplash.com/photo-1543528176-61b239494933?auto=format&fit=crop&w=600&q=80')">
+              <div class="story-ring">
+                <img src="https://images.unsplash.com/photo-1595273670150-bd0c3c392e46?auto=format&fit=crop&w=150&q=80" alt="Finca El Paraíso" class="story-avatar" />
+                <span class="story-badge-live">Hoy</span>
+              </div>
+              <span class="story-author-name">Finca Paraíso</span>
+            </div>
+
+            <!-- Story 2 -->
+            <div class="story-item" onclick="openStoryModal('Quesos La Sabana', 'Saliendo lote fresco de queso campesino y yogurt griego artesanal.', 'https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?auto=format&fit=crop&w=600&q=80')">
+              <div class="story-ring">
+                <img src="https://images.unsplash.com/photo-1528732263440-4dd1a18a4cc2?auto=format&fit=crop&w=150&q=80" alt="Quesería La Sabana" class="story-avatar" />
+                <span class="story-badge-live">Lote</span>
+              </div>
+              <span class="story-author-name">La Sabana</span>
+            </div>
+
+            <!-- Story 3 -->
+            <div class="story-item" onclick="openStoryModal('Café La Cumbre', 'Catación abierta hoy a las 4:00 PM con microlotes de Cundinamarca.', 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=600&q=80')">
+              <div class="story-ring">
+                <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=150&q=80" alt="Café La Cumbre" class="story-avatar" />
+                <span class="story-badge-live">Evento</span>
+              </div>
+              <span class="story-author-name">Café Cumbre</span>
+            </div>
+
+            <!-- Story 4 -->
+            <div class="story-item" onclick="openStoryModal('Panadería Doña Rosa', 'Pan de masa madre con quinua y miel recién salido del horno de leña.', 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=600&q=80')">
+              <div class="story-ring">
+                <img src="https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?auto=format&fit=crop&w=150&q=80" alt="Panadería Doña Rosa" class="story-avatar" />
+                <span class="story-badge-live">Horno</span>
+              </div>
+              <span class="story-author-name">Doña Rosa</span>
+            </div>
+
+            <!-- Story 5 -->
+            <div class="story-item" onclick="openStoryModal('Vivero Canelón', 'Llegaron aromáticas orgánicas: romero, menta y albahaca listas para tu huerta.', 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=600&q=80')">
+              <div class="story-ring">
+                <img src="https://images.unsplash.com/photo-1463320726281-696a485928c7?auto=format&fit=crop&w=150&q=80" alt="Vivero Canelón" class="story-avatar" />
+                <span class="story-badge-live">Plantas</span>
+              </div>
+              <span class="story-author-name">Vivero Canelón</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Category Filter Pills -->
+        <section style="margin: 10px 0 16px;">
+          <div class="categories-bar" id="categoryChips">
+            <button class="category-chip active" onclick="filterCategory('all', this)">
+              <span class="chip-icon">🌾</span> Todos
+            </button>
+            <button class="category-chip" onclick="filterCategory('huerta', this)">
+              <span class="chip-icon">🥬</span> Cosecha & Huerta
+            </button>
+            <button class="category-chip" onclick="filterCategory('lacteos', this)">
+              <span class="chip-icon">🧀</span> Quesos & Lácteos
+            </button>
+            <button class="category-chip" onclick="filterCategory('cafe', this)">
+              <span class="chip-icon">☕</span> Café de Origen
+            </button>
+            <button class="category-chip" onclick="filterCategory('panaderia', this)">
+              <span class="chip-icon">🥖</span> Panadería Campesina
+            </button>
+            <button class="category-chip" onclick="filterCategory('artesanias', this)">
+              <span class="chip-icon">🍯</span> Miel & Viveros
+            </button>
+          </div>
+        </section>
+
+        <!-- Featured Sponsors Section (2 Destacados on Desktop) -->
+        <section class="featured-wrap" id="patrocinadores">
+          <div class="section-head" style="padding-top: 10px;">
+            <h2 class="section-title">⭐ Patrocinadores Destacados de la Sabana</h2>
+            <span class="section-action" onclick="alert('Conocé los planes de visibilidad y patrocinio para productores')">Quiero ser Destacado →</span>
+          </div>
+
+          <div class="sponsors-grid">
+            <!-- Destacado 1: Finca El Paraíso -->
+            <div class="sponsor-hero-card" onclick="openDetailDrawer(0)">
+              <div class="sponsor-img-container">
+                <img src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=800&q=80" alt="Finca El Paraíso" class="sponsor-cover-img" />
+                <div class="sponsor-gradient-overlay"></div>
+                <span class="badge-destacado">★ Patrocinador Destacado</span>
+                <div class="sponsor-meta-overlay">
+                  <h3 class="sponsor-title-text">Finca Agroecológica El Paraíso</h3>
+                  <p class="sponsor-location-text">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+                    Vereda Chuntame, Cajicá · A 1.2 km del Parque
+                  </p>
+                </div>
+              </div>
+              <div class="sponsor-body">
+                <div class="sponsor-desktop-heading">
+                  <span style="font-size:11px; font-weight:800; color:var(--brand-dark); text-transform:uppercase; letter-spacing:0.04em;">★ Productor Familiar Verificado</span>
+                  <h3 class="sponsor-desktop-title">Finca Agroecológica El Paraíso</h3>
+                  <p class="sponsor-desktop-loc">📍 Vereda Chuntame, Cajicá · A 1.2 km del Parque</p>
+                </div>
+                <p class="sponsor-desc">Cultivo limpio de fresas hidropónicas sin pesticidas, huevos criollos de pastoreo y hortalizas limpias cultivadas con agua de lluvia y compost propio por la familia Morales.</p>
+                <div class="card-tags-row">
+                  <span class="tag-chip">Fresas Hidropónicas</span>
+                  <span class="tag-chip">Huevos Criollos</span>
+                </div>
+                <div class="sponsor-action-row">
+                  <button class="sponsor-action-cta">Ver Perfil y Productos →</button>
+                  <button onclick="event.stopPropagation(); openWhatsApp(event, '573101234567', 'Finca El Paraíso')" class="whatsapp-quick-btn" style="padding: 9px 16px; font-size: 12.5px;">
+                    <span>WhatsApp</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Destacado 2: Quesería Artesanal La Sabana -->
+            <div class="sponsor-hero-card" onclick="openDetailDrawer(1)">
+              <div class="sponsor-img-container">
+                <img src="https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?auto=format&fit=crop&w=800&q=80" alt="Quesería La Sabana" class="sponsor-cover-img" />
+                <div class="sponsor-gradient-overlay"></div>
+                <span class="badge-destacado">★ Patrocinador Destacado</span>
+                <div class="sponsor-meta-overlay">
+                  <h3 class="sponsor-title-text">Quesería Artesanal La Sabana</h3>
+                  <p class="sponsor-location-text">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+                    Calle 4 # 3-22, Cajicá Centro
+                  </p>
+                </div>
+              </div>
+              <div class="sponsor-body">
+                <div class="sponsor-desktop-heading">
+                  <span style="font-size:11px; font-weight:800; color:var(--brand-dark); text-transform:uppercase; letter-spacing:0.04em;">★ Transformador Local Verificado</span>
+                  <h3 class="sponsor-desktop-title">Quesería Artesanal La Sabana</h3>
+                  <p class="sponsor-desktop-loc">📍 Calle 4 # 3-22, Cajicá Centro · Sector Histórico</p>
+                </div>
+                <p class="sponsor-desc">Quesos madurados tipo gouda y tilsit con leche fresca de hatos sabaneros, arequipe tradicional de paila y yogurt griego artesanal sin azúcar.</p>
+                <div class="card-tags-row">
+                  <span class="tag-chip">Queso Madurado</span>
+                  <span class="tag-chip">Arequipe Tradicional</span>
+                </div>
+                <div class="sponsor-action-row">
+                  <button class="sponsor-action-cta">Ver Perfil y Productos →</button>
+                  <button onclick="event.stopPropagation(); openWhatsApp(event, '573119876543', 'Quesería La Sabana')" class="whatsapp-quick-btn" style="padding: 9px 16px; font-size: 12.5px;">
+                    <span>WhatsApp</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Main Directory List -->
+        <section id="directorio">
+          <div class="section-head">
+            <h2 class="section-title" id="resultsCountHeader">Productores y Negocios en Cajicá (6)</h2>
+            <span class="section-action" onclick="alert('Ordenando por cercanía geográfica')">Ordenar por cercanía ▾</span>
+          </div>
+
+          <div class="feed-container" id="cardsGrid">
+            <!-- Dynamic cards populated by JS -->
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- ========================================== -->
+    <!-- 5. BOTTOM NAVIGATION (Mobile/Tablet Only)  -->
+    <!-- ========================================== -->
+    <nav class="bottom-nav-bar">
+      <button class="nav-tab-item active">
+        <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span class="nav-tab-label">Explorar</span>
+      </button>
+
+      <button class="nav-tab-item" onclick="alert('Abriendo mapa interactivo de Cajicá...')">
+        <svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+        <span class="nav-tab-label">Mapa</span>
+      </button>
+
+      <button class="nav-tab-item" onclick="openStoryModal('Historias en Vivo', 'Descubrí lo que está sucediendo hoy en el campo sabanero.', 'https://images.unsplash.com/photo-1543528176-61b239494933?auto=format&fit=crop&w=600&q=80')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+        <span class="nav-tab-label">Historias</span>
+      </button>
+
+      <button class="nav-tab-item" onclick="alert('Mis favoritos guardados')">
+        <svg viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+        <span class="nav-tab-label">Favoritos</span>
+      </button>
+
+      <button class="nav-tab-item" onclick="alert('Mi cuenta de productor / explorador')">
+        <svg viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span class="nav-tab-label">Mi Cuenta</span>
+      </button>
+    </nav>
+
+    <!-- ========================================== -->
+    <!-- 6. DESKTOP FOOTER (Visible on Desktop View)-->
+    <!-- ========================================== -->
+    <footer class="desktop-footer">
+      <div class="footer-inner-grid">
+        <div class="footer-col">
+          <img src="data:image/png;base64,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" alt="Agrociudad" style="height: 32px; margin-bottom: 16px;" onerror="this.outerHTML='<h3 style=\'color:#fff; font-size:24px; font-weight:900; margin-bottom:14px;\'>AGROCIUDAD</h3>'" />
+          <p style="font-size: 13.5px; line-height: 1.65; max-width: 440px; color: #a1b8aa;">Conectando de forma directa a las familias campesinas, productores agroecológicos y comercios locales de la Sabana de Bogotá con vecinos, hogares y visitantes.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Municipios Activos</h4>
+          <ul>
+            <li><a href="javascript:void(0)" onclick="selectTown('Cajicá, Cundinamarca')">📍 Cajicá (Municipio Piloto)</a></li>
+            <li><a href="javascript:void(0)" onclick="selectTown('Chía, Cundinamarca')">📍 Chía</a></li>
+            <li><a href="javascript:void(0)" onclick="selectTown('Tabio, Cundinamarca')">📍 Tabio</a></li>
+            <li><a href="javascript:void(0)" onclick="selectTown('Sopó, Cundinamarca')">📍 Sopó</a></li>
+            <li><a href="javascript:void(0)" onclick="selectTown('Zipaquirá, Cundinamarca')">📍 Zipaquirá</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Productores & Comercios</h4>
+          <ul>
+            <li><a href="javascript:void(0)" onclick="alert('Creá tu perfil gratis en 3 pasos')">Registrar mi Finca / Negocio</a></li>
+            <li><a href="javascript:void(0)" onclick="alert('Subir historia o cosecha del día')">Publicar Cosecha del Día</a></li>
+            <li><a href="javascript:void(0)" onclick="alert('Planes de Membresía y Destacados')">Planes de Patrocinio Sabana</a></li>
+            <li><a href="javascript:void(0)" onclick="alert('Soporte vía WhatsApp Agrociudad')">Atención por WhatsApp</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Sabana Centro</h4>
+          <p style="font-size: 13px; line-height: 1.6; color: #829b8c;">Una iniciativa para fortalecer la soberanía alimentaria, el comercio justo y el turismo rural en Cundinamarca.</p>
+        </div>
+      </div>
+      <div class="footer-bottom-line">
+        <span>© 2026 Agrociudad — Cundinamarca, Colombia. Red de Comercio Vivo.</span>
+        <span>Arquitectura Mobile-First PWA & Web Responsiva</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Bottom Sheet Drawer for Full Business Profile Preview -->
+  <div class="sheet-backdrop" id="sheetBackdrop" onclick="closeDetailDrawer(event)">
+    <div class="bottom-sheet" id="bottomSheet">
+      <div class="sheet-handle-bar"></div>
+      <img src="" id="sheetImg" alt="Detalle" class="sheet-hero-img" />
+      <div class="sheet-body">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+          <div>
+            <span id="sheetBadge" style="font-size: 11px; font-weight: 800; color: var(--brand-dark); text-transform: uppercase;"></span>
+            <h2 id="sheetTitle" style="font-size: 22px; font-weight: 800; color: var(--text-ink); margin-top: 3px;"></h2>
+          </div>
+          <span id="sheetRating" style="font-weight: 800; font-size: 14px; background: #fff8e6; padding: 4px 8px; border-radius: 8px;"></span>
+        </div>
+
+        <p id="sheetLocation" style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 4px;"></p>
+        <p id="sheetDesc" style="font-size: 14.5px; color: var(--text-ink); line-height: 1.55; margin-bottom: 20px;"></p>
+
+        <!-- Action Bar in Drawer -->
+        <div style="display: flex; gap: 12px; margin-top: 14px;">
+          <a id="sheetWhatsAppBtn" href="#" target="_blank" style="flex: 1; background: #25d366; color: #fff; text-align: center; padding: 13px; border-radius: var(--radius-full); text-decoration: none; font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 14px rgba(37,211,102,0.35);">
+            <span>💬 Chatear por WhatsApp</span>
+          </a>
+          <button onclick="alert('Abriendo ruta GPS en Waze / Google Maps')" style="background: var(--bg-page); border: 1px solid var(--border-subtle); padding: 13px 18px; border-radius: var(--radius-full); font-weight: 700; font-size: 13.5px; cursor: pointer;">
+            📍 Navegar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Town Switcher Modal -->
+  <div class="sheet-backdrop" id="townModalBackdrop" onclick="closeTownModal(event)">
+    <div class="town-modal" id="townModal">
+      <h3 style="font-size: 19px; font-weight: 800; color: var(--text-ink);">Seleccionar Municipio</h3>
+      <p style="font-size: 13.5px; color: var(--text-muted); margin-top: 4px;">Explora la red de productores por localidad:</p>
+      
+      <ul class="town-list">
+        <li><button class="town-opt-btn active" onclick="selectTown('Cajicá, Cundinamarca')"><span>📍 Cajicá</span> <span style="font-size: 11.5px; color: var(--brand-dark); font-weight:800;">124 Negocios</span></button></li>
+        <li><button class="town-opt-btn" onclick="selectTown('Chía, Cundinamarca')"><span>📍 Chía</span> <span style="font-size: 11.5px; color: var(--text-muted);">98 Negocios</span></button></li>
+        <li><button class="town-opt-btn" onclick="selectTown('Tabio, Cundinamarca')"><span>📍 Tabio</span> <span style="font-size: 11.5px; color: var(--text-muted);">62 Negocios</span></button></li>
+        <li><button class="town-opt-btn" onclick="selectTown('Sopó, Cundinamarca')"><span>📍 Sopó</span> <span style="font-size: 11.5px; color: var(--text-muted);">45 Negocios</span></button></li>
+        <li><button class="town-opt-btn" onclick="selectTown('Zipaquirá, Cundinamarca')"><span>📍 Zipaquirá</span> <span style="font-size: 11.5px; color: var(--text-muted);">110 Negocios</span></button></li>
+      </ul>
+
+      <button onclick="closeTownModal()" style="width: 100%; padding: 12px; background: var(--bg-input); border: none; border-radius: var(--radius-md); font-weight: 700; color: var(--text-ink); cursor: pointer;">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- Ephemeral Story Viewer -->
+  <div class="story-viewer-modal" id="storyModal" onclick="closeStoryModal()">
+    <div class="story-progress-bar">
+      <div class="story-progress-fill" id="storyProgress"></div>
+    </div>
+    <div class="story-top-info">
+      <div>
+        <strong id="storyAuthorTitle" style="font-size: 15px;"></strong>
+        <span style="font-size: 12px; color: #a4cca8; margin-left: 6px;">Hace 2 horas</span>
+      </div>
+      <button style="background: none; border: none; color: #fff; font-size: 22px; cursor: pointer;">✕</button>
+    </div>
+    <div class="story-media-view">
+      <img src="" id="storyImg" class="story-main-img" alt="Historia" />
+      <div class="story-caption-box">
+        <p id="storyCaptionText" style="font-size: 14.5px; font-weight: 600; line-height: 1.45;"></p>
+        <button onclick="event.stopPropagation(); alert('Contactando al productor por esta historia...')" style="margin-top: 12px; width: 100%; background: #25d366; color: #fff; border: none; padding: 11px; border-radius: var(--radius-full); font-weight: 800; font-size: 13.5px; cursor: pointer;">
+          💬 Responder a esta historia por WhatsApp
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Authentic Dummy Dataset for Agrociudad
+    const businessesData = [
+      {
+        id: 0,
+        name: "Finca Agroecológica El Paraíso",
+        badge: "Productor Familiar Verificado",
+        category: "huerta",
+        categoryLabel: "Cosecha & Huerta",
+        rating: "4.9 (48)",
+        distance: "1.2 km",
+        location: "Vereda Chuntame, Cajicá",
+        description: "Cultivo limpio de fresas de altura, hortalizas hidropónicas sin pesticidas y huevos criollos de pastoreo directo al consumidor.",
+        image: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=700&q=80",
+        tags: ["Fresas", "Lechuga Hidropónica", "Huevos Criollos"],
+        whatsapp: "573101234567"
+      },
+      {
+        id: 1,
+        name: "Quesería Artesanal La Sabana",
+        badge: "Transformador Local",
+        category: "lacteos",
+        categoryLabel: "Quesos & Lácteos",
+        rating: "4.8 (92)",
+        distance: "850 m",
+        location: "Calle 4 # 3-22, Cajicá Centro",
+        description: "Elaboración de quesos madurados tipo gouda y tilsit con leche fresca de hatos sabaneros, arequipe tradicional de paila y yogurt sin azúcar.",
+        image: "https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?auto=format&fit=crop&w=700&q=80",
+        tags: ["Queso Madurado", "Arequipe", "Yogurt Griego"],
+        whatsapp: "573119876543"
+      },
+      {
+        id: 2,
+        name: "Café Especial La Cumbre",
+        badge: "Comercio de Origen",
+        category: "cafe",
+        categoryLabel: "Café de Origen",
+        rating: "5.0 (64)",
+        distance: "1.5 km",
+        location: "Vía Cajicá - Tabio Km 2",
+        description: "Tostión propia de microlotes de pequeños caficultores cundinamarqueses. Métodos de filtrado, repostería con ingredientes locales.",
+        image: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=700&q=80",
+        tags: ["Café Filtrado", "Tostión Local", "Repostería"],
+        whatsapp: "573154445566"
+      },
+      {
+        id: 3,
+        name: "Panadería Campesina Doña Rosa",
+        badge: "Tradición Familiar",
+        category: "panaderia",
+        categoryLabel: "Panadería Campesina",
+        rating: "4.7 (110)",
+        distance: "600 m",
+        location: "Carrera 5 # 2-45, Cajicá",
+        description: "Hornos de leña tradicionales con recetas de tres generaciones: almojábanas, pandeyucas calientes, pan de sagú y cuajada fresca con melao.",
+        image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=700&q=80",
+        tags: ["Horno de Leña", "Sagú", "Almojábanas"],
+        whatsapp: "573123332211"
+      },
+      {
+        id: 4,
+        name: "Vivero & Aromáticas Canelón",
+        badge: "Vivero Familiar",
+        category: "artesanias",
+        categoryLabel: "Miel & Viveros",
+        rating: "4.9 (35)",
+        distance: "2.4 km",
+        location: "Vereda Canelón, Sector La Estación",
+        description: "Plantas medicinales, aromáticas para cocina, flores nativas de la sabana y sustratos orgánicos para crear tu huerto casero.",
+        image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=700&q=80",
+        tags: ["Aromáticas", "Huertas Caseras", "Sustratos"],
+        whatsapp: "573178889900"
+      },
+      {
+        id: 5,
+        name: "Apicultura Andina & Miel Pura",
+        badge: "Apicultor Sostenible",
+        category: "artesanias",
+        categoryLabel: "Miel & Viveros",
+        rating: "4.9 (53)",
+        distance: "3.1 km",
+        location: "Vereda Río Frío, Cajicá",
+        description: "Miel cruda multifloral sin pasteurizar cosechada en bosques andinos, polen seco natural, propóleo concentrado y jalea real pura.",
+        image: "https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=700&q=80",
+        tags: ["Miel Cruda", "Polen Fresco", "Propóleo"],
+        whatsapp: "573165554433"
+      }
+    ];
+
+    let currentCategory = 'all';
+    let currentSearch = '';
+    let favoritedIds = new Set([0, 2]);
+
+    function renderCards() {
+      const container = document.getElementById('cardsGrid');
+      container.innerHTML = '';
+
+      const filtered = businessesData.filter(item => {
+        const matchCategory = currentCategory === 'all' || item.category === currentCategory;
+        const q = currentSearch.toLowerCase().trim();
+        const matchSearch = !q || 
+          item.name.toLowerCase().includes(q) || 
+          item.description.toLowerCase().includes(q) ||
+          item.tags.some(t => t.toLowerCase().includes(q));
+        return matchCategory && matchSearch;
+      });
+
+      document.getElementById('resultsCountHeader').textContent = 
+        `Productores y Negocios en Cajicá (${filtered.length})`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 48px 20px; background: #fff; border-radius: 18px; border: 1px dashed var(--border-subtle);">
+            <div style="font-size: 36px; margin-bottom: 10px;">🔍</div>
+            <h3 style="font-size: 17px; font-weight: 800; color: var(--text-ink);">No encontramos coincidencias para "${currentSearch}"</h3>
+            <p style="font-size: 13.5px; color: var(--text-muted); margin-top: 6px;">Probá buscando términos como "fresas", "café", "queso" o "sagú".</p>
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach(item => {
+        const isFav = favoritedIds.has(item.id);
+        const card = document.createElement('article');
+        card.className = 'business-card';
+        card.onclick = () => openDetailDrawer(item.id);
+
+        card.innerHTML = `
+          <div class="card-media-box">
+            <img src="${item.image}" alt="${item.name}" class="card-photo" loading="lazy" />
+            <span class="card-producer-pill">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              ${item.badge}
+            </span>
+            <button class="fav-toggle-btn ${isFav ? 'favorited' : ''}" onclick="toggleFavorite(event, ${item.id}, this)">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2.2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            </button>
+          </div>
+
+          <div class="card-content">
+            <div class="card-header-line">
+              <h3 class="card-name">${item.name}</h3>
+              <span class="card-rating">
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                ${item.rating}
+              </span>
+            </div>
+
+            <div class="card-category-line">
+              <span>${item.categoryLabel}</span>
+              <span class="dot-separator"></span>
+              <span>${item.location}</span>
+            </div>
+
+            <div class="card-tags-row">
+              ${item.tags.map(t => `<span class="tag-chip">${t}</span>`).join('')}
+            </div>
+
+            <div class="card-footer-actions">
+              <div class="distance-indicator">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span>A ${item.distance}</span>
+              </div>
+              <button class="whatsapp-quick-btn" onclick="openWhatsApp(event, '${item.whatsapp}', '${item.name}')">
+                <span>WhatsApp</span>
+              </button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Category Filter Handler
+    function filterCategory(cat, el) {
+      currentCategory = cat;
+      document.querySelectorAll('.category-chip').forEach(btn => btn.classList.remove('active'));
+      el.classList.add('active');
+      renderCards();
+    }
+
+    // Search Handler (sync mobile & desktop inputs)
+    function handleSearch(val) {
+      currentSearch = val;
+      const clearBtn = document.getElementById('btnClearSearch');
+      if (clearBtn) clearBtn.style.display = val.length > 0 ? 'flex' : 'none';
+
+      // Keep both inputs synchronized
+      const mInput = document.getElementById('mainSearchInput');
+      const dInput = document.getElementById('desktopHeroSearchInput');
+      if (mInput && mInput.value !== val) mInput.value = val;
+      if (dInput && dInput.value !== val) dInput.value = val;
+
+      renderCards();
+    }
+
+    function clearSearch() {
+      handleSearch('');
+    }
+
+    function quickFilterTag(tag) {
+      handleSearch(tag);
+      document.getElementById('directorio').scrollIntoView({behavior: 'smooth'});
+    }
+
+    // Favorite Toggle
+    function toggleFavorite(e, id, btn) {
+      e.stopPropagation();
+      if (favoritedIds.has(id)) {
+        favoritedIds.delete(id);
+        btn.classList.remove('favorited');
+        btn.querySelector('svg').setAttribute('fill', 'none');
+      } else {
+        favoritedIds.add(id);
+        btn.classList.add('favorited');
+        btn.querySelector('svg').setAttribute('fill', 'currentColor');
+      }
+    }
+
+    // WhatsApp Action
+    function openWhatsApp(e, phone, name) {
+      e.stopPropagation();
+      const msg = encodeURIComponent(`Hola ${name}, vi su perfil en Agrociudad y me interesa conocer sus productos disponibles hoy.`);
+      window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+    }
+
+    // Bottom Sheet Profile Drawer
+    function openDetailDrawer(id) {
+      const item = businessesData.find(b => b.id === id);
+      if (!item) return;
+
+      document.getElementById('sheetImg').src = item.image;
+      document.getElementById('sheetBadge').textContent = item.badge;
+      document.getElementById('sheetTitle').textContent = item.name;
+      document.getElementById('sheetRating').textContent = `★ ${item.rating}`;
+      document.getElementById('sheetLocation').textContent = `📍 ${item.location} (A ${item.distance})`;
+      document.getElementById('sheetDesc').textContent = item.description;
+
+      const waBtn = document.getElementById('sheetWhatsAppBtn');
+      const msg = encodeURIComponent(`Hola ${item.name}, los encontré en Agrociudad y quisiera hacer un pedido o visita.`);
+      waBtn.href = `https://wa.me/${item.whatsapp}?text=${msg}`;
+
+      document.getElementById('sheetBackdrop').classList.add('open');
+    }
+
+    function closeDetailDrawer(e) {
+      if (e && e.target !== document.getElementById('sheetBackdrop')) return;
+      document.getElementById('sheetBackdrop').classList.remove('open');
+    }
+
+    // Town Switcher Modal
+    function openTownModal() {
+      document.getElementById('townModalBackdrop').classList.add('open');
+      document.getElementById('townModal').classList.add('open');
+    }
+
+    function closeTownModal(e) {
+      if (e && e.target !== document.getElementById('townModalBackdrop')) return;
+      document.getElementById('townModalBackdrop').classList.remove('open');
+      document.getElementById('townModal').classList.remove('open');
+    }
+
+    function selectTown(townName) {
+      document.getElementById('currentTownLabel').textContent = townName;
+      const dLabel = document.getElementById('currentTownLabelDesktop');
+      if (dLabel) dLabel.textContent = townName;
+      closeTownModal();
+      renderCards();
+    }
+
+    // Story Modal Viewer
+    let storyInterval;
+    function openStoryModal(author, caption, imgUrl) {
+      document.getElementById('storyAuthorTitle').textContent = author;
+      document.getElementById('storyCaptionText').textContent = caption;
+      document.getElementById('storyImg').src = imgUrl;
+
+      const modal = document.getElementById('storyModal');
+      const fill = document.getElementById('storyProgress');
+      modal.classList.add('open');
+      fill.style.width = '0%';
+
+      let progress = 0;
+      clearInterval(storyInterval);
+      storyInterval = setInterval(() => {
+        progress += 2;
+        fill.style.width = progress + '%';
+        if (progress >= 100) {
+          clearInterval(storyInterval);
+          closeStoryModal();
+        }
+      }, 100);
+    }
+
+    function closeStoryModal() {
+      clearInterval(storyInterval);
+      document.getElementById('storyModal').classList.remove('open');
+    }
+
+    // View Mode Toggle (Mobile / Tablet / Desktop)
+    function setViewMode(mode) {
+      const body = document.body;
+      const btnM = document.getElementById('btnModeMobile');
+      const btnT = document.getElementById('btnModeTablet');
+      const btnD = document.getElementById('btnModeDesktop');
+
+      body.classList.remove('view-mobile', 'view-tablet', 'view-desktop');
+      btnM.classList.remove('active');
+      btnT.classList.remove('active');
+      btnD.classList.remove('active');
+
+      if (mode === 'tablet') {
+        body.classList.add('view-tablet');
+        btnT.classList.add('active');
+      } else if (mode === 'desktop') {
+        body.classList.add('view-desktop');
+        btnD.classList.add('active');
+      } else {
+        body.classList.add('view-mobile');
+        btnM.classList.add('active');
+      }
+    }
+
+    // Initial load
+    renderCards();
+  </script>
+</body>
+</html>
