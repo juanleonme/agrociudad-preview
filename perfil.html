@@ -421,9 +421,48 @@
       font-size: 11px;
       font-weight: 700;
     }
+  
+    /* Keep the existing desktop header compact without wrapping navigation labels. */
+    .desktop-navbar-inner { gap: 16px; padding-inline: 24px; }
+    .nav-left-brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
+    .desktop-logo { width: 154px; height: 32px; object-fit: contain; flex-shrink: 0; }
+    .nav-center-links { display: flex; align-items: center; gap: 18px; flex-shrink: 0; flex-wrap: nowrap; }
+    .desktop-navbar .nav-link-item, .desktop-town-btn, .nav-post-cta { white-space: nowrap; }
+    .desktop-navbar .nav-icon-link { width: 44px; height: 44px; justify-content: center; }
+    .nav-icon-link svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; }
+    .nav-icon-link:focus-visible { outline: 2px solid var(--brand-primary); outline-offset: 2px; }
+    @media (max-width: 1200px) {
+      .desktop-navbar-inner { gap: 10px; padding-inline: 16px; }
+      .nav-left-brand { gap: 10px; }
+      .nav-center-links { gap: 10px; }
+      .desktop-town-btn { padding-inline: 10px; }
+      .nav-post-cta { padding-inline: 12px; }
+      .nav-right-actions { gap: 8px; }
+    }
+    @media (max-width: 767px) {
+      .view-switcher-dock { right: 8px; top: auto; bottom: 88px; transform: none; padding: 4px; gap: 4px; }
+    }
   </style>
 </head>
-<body class="view-desktop">
+<body class="view-mobile">
+  <script>
+    // Set the layout before content is painted; manual preview choices win on resize.
+    (function initializePreviewViewport() {
+      let manualMode = false;
+      const viewportMode = () => window.innerWidth < 768 ? 'mobile' : window.innerWidth < 1024 ? 'tablet' : 'desktop';
+      document.body.className = 'view-' + viewportMode();
+      function syncViewport() {
+        if (!manualMode) setViewMode(viewportMode());
+      }
+      document.addEventListener('DOMContentLoaded', function () {
+        syncViewport();
+        document.querySelector('.view-switcher-dock').addEventListener('click', function (event) {
+          if (event.target.closest('.view-dock-btn')) manualMode = true;
+        }, true);
+      }, { once: true });
+      window.addEventListener('resize', syncViewport);
+    })();
+  </script>
 
   <!-- Floating Switcher -->
   <aside class="view-switcher-dock">
@@ -444,13 +483,14 @@
     <header class="desktop-navbar">
       <div class="desktop-navbar-inner">
         <a href="index.html" style="text-decoration:none;">
-          <span style="font-weight:900; font-size:24px; color:var(--brand-deep);">agro<span style="color:var(--brand-primary)">ciudad</span>.com</span>
+          <img src="data:image/png;base64,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" alt="Agrociudad" class="desktop-logo" />
         </a>
-        <nav style="display:flex; gap:28px;">
-          <a href="index.html" class="nav-link-item">🏠 Inicio</a>
-          <a href="index.html#cosechas" class="nav-link-item">🌱 Cosechas 24h</a>
-          <a href="mapa.html" class="nav-link-item">🗺️ Mapa Interactivo</a>
-          <a href="perfil.html" class="nav-link-item active">👤 Mi Perfil</a>
+        <nav class="nav-center-links" aria-label="Navegación principal">
+          <a href="index.html#cosechas" class="nav-link-item">Cosechas</a>
+          <a href="index.html#directorio" class="nav-link-item">Productores</a>
+          <a href="mapa.html" class="nav-link-item">Mapa</a>
+          <a href="perfil.html" class="nav-link-item nav-icon-link active" aria-label="Mi perfil" title="Mi perfil"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a7 7 0 0 0-14 0v2"/></svg></a>
+          <a href="index.html#patrocinadores" class="nav-link-item nav-icon-link" aria-label="Destacados" title="Destacados"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9z"/></svg></a>
         </nav>
         <div>
           <button class="btn-action-primary" onclick="alert('Publicar producto')">+ Publicar Cosecha</button>

@@ -1424,9 +1424,48 @@
       border-radius: var(--radius-md);
       color: #ffffff;
     }
+  
+    /* Keep the existing desktop header compact without wrapping navigation labels. */
+    .desktop-navbar-inner { gap: 16px; padding-inline: 24px; }
+    .nav-left-brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
+    .desktop-logo { width: 154px; height: 32px; object-fit: contain; flex-shrink: 0; }
+    .nav-center-links { display: flex; align-items: center; gap: 18px; flex-shrink: 0; flex-wrap: nowrap; }
+    .desktop-navbar .nav-link-item, .desktop-town-btn, .nav-post-cta { white-space: nowrap; }
+    .desktop-navbar .nav-icon-link { width: 44px; height: 44px; justify-content: center; }
+    .nav-icon-link svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; }
+    .nav-icon-link:focus-visible { outline: 2px solid var(--brand-primary); outline-offset: 2px; }
+    @media (max-width: 1200px) {
+      .desktop-navbar-inner { gap: 10px; padding-inline: 16px; }
+      .nav-left-brand { gap: 10px; }
+      .nav-center-links { gap: 10px; }
+      .desktop-town-btn { padding-inline: 10px; }
+      .nav-post-cta { padding-inline: 12px; }
+      .nav-right-actions { gap: 8px; }
+    }
+    @media (max-width: 767px) {
+      .view-switcher-dock { right: 8px; top: auto; bottom: 88px; transform: none; padding: 4px; gap: 4px; }
+    }
   </style>
 </head>
-<body class="view-desktop">
+<body class="view-mobile">
+  <script>
+    // Set the layout before content is painted; manual preview choices win on resize.
+    (function initializePreviewViewport() {
+      let manualMode = false;
+      const viewportMode = () => window.innerWidth < 768 ? 'mobile' : window.innerWidth < 1024 ? 'tablet' : 'desktop';
+      document.body.className = 'view-' + viewportMode();
+      function syncViewport() {
+        if (!manualMode) setViewMode(viewportMode());
+      }
+      document.addEventListener('DOMContentLoaded', function () {
+        syncViewport();
+        document.querySelector('.view-switcher-dock').addEventListener('click', function (event) {
+          if (event.target.closest('.view-dock-btn')) manualMode = true;
+        }, true);
+      }, { once: true });
+      window.addEventListener('resize', syncViewport);
+    })();
+  </script>
 
   <!-- Floating View Switcher Dock (Right Side, Icons Only) -->
   <aside class="view-switcher-dock" aria-label="Selector de Vista">
@@ -1501,12 +1540,12 @@
           </button>
         </div>
 
-        <nav class="nav-center-links">
-          <a href="#cosechas" class="nav-link-item">🌱 Cosechas de Hoy</a>
-          <a href="#directorio" class="nav-link-item">🧀 Productores</a>
-          <a href="mapa.html" class="nav-link-item">🗺️ Mapa Sabana</a>
-          <a href="perfil.html" class="nav-link-item">👤 Mi Perfil</a>
-          <a href="#patrocinadores" class="nav-link-item">⭐ Destacados</a>
+        <nav class="nav-center-links" aria-label="Navegación principal">
+          <a href="index.html#cosechas" class="nav-link-item">Cosechas</a>
+          <a href="index.html#directorio" class="nav-link-item">Productores</a>
+          <a href="mapa.html" class="nav-link-item">Mapa</a>
+          <a href="perfil.html" class="nav-link-item nav-icon-link" aria-label="Mi perfil" title="Mi perfil"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a7 7 0 0 0-14 0v2"/></svg></a>
+          <a href="index.html#patrocinadores" class="nav-link-item nav-icon-link" aria-label="Destacados" title="Destacados"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9z"/></svg></a>
         </nav>
 
         <div class="nav-right-actions">
