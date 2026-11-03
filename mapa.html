@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
+  <title>Agrociudad — Mapa de Productores y Comercios Locales</title>
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#00572b" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#042914" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Leaflet Map CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    :root {
+      --brand-primary: #00a651;
+      --brand-dark: #007a3b;
+      --brand-deep: #04381d;
+      --brand-light: #eaf8ef;
+      
+      --accent-warm: #e88d24;
+      --bg-page: #f6f5f1;
+      --bg-card: #ffffff;
+      --bg-input: #eeede8;
+      
+      --text-ink: #111a13;
+      --text-muted: #4e5e53;
+      --text-subtle: #7d8f83;
+      
+      --border-subtle: #e2e0d6;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-full: 9999px;
+      
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+      --shadow-card: 0 4px 16px rgba(17, 26, 19, 0.08);
+      --shadow-floating: 0 14px 36px rgba(17, 26, 19, 0.16);
+      
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: #121c15;
+      color: var(--text-ink);
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Screen Simulator Shell */
+    .simulator-shell {
+      width: 100%;
+      min-height: 100vh;
+      background: var(--bg-page);
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    body.view-mobile .simulator-shell {
+      max-width: 430px;
+      margin: 0 auto;
+      box-shadow: 0 0 55px rgba(0, 0, 0, 0.5);
+    }
+    body.view-tablet .simulator-shell {
+      max-width: 840px;
+      margin: 20px auto;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 0 65px rgba(0, 0, 0, 0.55);
+    }
+    body.view-desktop {
+      background-color: var(--bg-page);
+    }
+    body.view-desktop .simulator-shell {
+      max-width: 100%;
+      width: 100%;
+      margin: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    /* Floating View Switcher Dock */
+    .view-switcher-dock {
+      position: fixed;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(17, 26, 19, 0.94);
+      backdrop-filter: blur(16px);
+      padding: 10px 7px;
+      border-radius: var(--radius-full);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: var(--shadow-floating);
+      z-index: 9999;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+    .view-dock-btn {
+      background: transparent;
+      border: none;
+      color: #92ab9b;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .view-dock-btn svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.1;
+    }
+    .view-dock-btn.active {
+      background: var(--brand-primary);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(0, 166, 81, 0.45);
+    }
+    .view-dock-btn::before {
+      content: attr(data-tooltip);
+      position: absolute;
+      right: 56px;
+      top: 50%;
+      transform: translateY(-50%) scale(0.9);
+      background: #111a13;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px 11px;
+      border-radius: 8px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.15s ease;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+    }
+    .view-dock-btn:hover::before {
+      opacity: 1;
+      transform: translateY(-50%) scale(1);
+    }
+
+    /* Top Desktop Header */
+    .desktop-navbar {
+      display: none;
+      background: #ffffff;
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      height: 72px;
+    }
+    body.view-desktop .desktop-navbar {
+      display: block;
+    }
+    .desktop-navbar-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 36px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-left-brand {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .desktop-town-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-page);
+      border: 1px solid var(--border-subtle);
+      padding: 8px 16px;
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-ink);
+      cursor: pointer;
+    }
+    .nav-center-links {
+      display: flex;
+      align-items: center;
+      gap: 26px;
+    }
+    .nav-link-item {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav-link-item.active {
+      color: var(--brand-dark);
+      font-weight: 800;
+    }
+    .nav-post-cta {
+      background: var(--brand-primary);
+      color: #ffffff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: var(--radius-full);
+      font-size: 13.5px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    /* Mobile Header */
+    .mobile-header {
+      background: linear-gradient(175deg, var(--brand-deep) 0%, var(--brand-dark) 100%);
+      color: #ffffff;
+      padding: 14px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    body.view-desktop .mobile-header {
+      display: none !important;
+    }
+    .mobile-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .view-mode-toggle-pills {
+      display: flex;
+      background: rgba(255,255,255,0.18);
+      padding: 3px;
+      border-radius: var(--radius-full);
+    }
+    .mode-pill {
+      background: transparent;
+      border: none;
+      color: #ffffff;
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .mode-pill.active {
+      background: #ffffff;
+      color: var(--brand-deep);
+    }
+
+    /* Split Screen Layout (Desktop: List Left + Map Right) */
+    .split-layout-container {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 72px);
+      overflow: hidden;
+      position: relative;
+    }
+    body.view-mobile .split-layout-container,
+    body.view-tablet .split-layout-container {
+      flex-direction: column;
+      height: auto;
+      overflow: visible;
+    }
+
+    /* Left Sidebar Panel (Filters & Cards) */
+    .directory-panel {
+      width: 480px;
+      height: 100%;
+      background: #ffffff;
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 10;
+    }
+    body.view-mobile .directory-panel,
+    body.view-tablet .directory-panel {
+      width: 100%;
+      height: auto;
+      border-right: none;
+    }
+
+    .panel-header-search {
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .panel-search-box {
+      position: relative;
+    }
+    .panel-search-input {
+      width: 100%;
+      background: var(--bg-page);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 11px 16px 11px 40px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text-ink);
+      outline: none;
+    }
+    .panel-search-box svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 17px;
+      height: 17px;
+      stroke: var(--text-subtle);
+      fill: none;
+      stroke-width: 2.2;
+    }
+
+    .category-pills-horizontal {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding-bottom: 4px;
+    }
+    .category-pills-horizontal::-webkit-scrollbar {
+      display: none;
+    }
+    .cat-btn-chip {
+      background: var(--bg-page);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      padding: 6px 13px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-ink);
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .cat-btn-chip.active {
+      background: var(--brand-deep);
+      color: #ffffff;
+      border-color: var(--brand-deep);
+    }
+
+    /* Scrollable Cards List */
+    .cards-scroll-box {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px 80px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    body.view-mobile .cards-scroll-box {
+      padding-bottom: 90px;
+    }
+
+    .map-listing-card {
+      background: #ffffff;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 12px;
+      display: flex;
+      gap: 14px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: var(--shadow-sm);
+    }
+    .map-listing-card:hover,
+    .map-listing-card.highlighted {
+      border-color: var(--brand-primary);
+      box-shadow: 0 4px 14px rgba(0, 166, 81, 0.15);
+      transform: translateY(-1px);
+    }
+    .map-card-thumb {
+      width: 100px;
+      height: 100px;
+      border-radius: var(--radius-md);
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .map-card-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .map-card-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-ink);
+      line-height: 1.25;
+    }
+    .map-card-kicker {
+      font-size: 10.5px;
+      font-weight: 800;
+      color: var(--brand-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .map-card-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin: 2px 0 6px;
+    }
+    .map-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Right Map Container */
+    .map-viewport-panel {
+      flex: 1;
+      height: 100%;
+      position: relative;
+      background: #e5e3df;
+    }
+    body.view-mobile .map-viewport-panel {
+      height: 48vh;
+      width: 100%;
+    }
+    body.view-tablet .map-viewport-panel {
+      height: 55vh;
+      width: 100%;
+    }
+
+    #leafletMap {
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    /* Custom Leaflet Map Pin Styles */
+    .custom-map-pin {
+      background: var(--brand-primary);
+      color: #ffffff;
+      border: 2px solid #ffffff;
+      border-radius: var(--radius-full);
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 800;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+    .custom-map-pin:hover {
+      transform: scale(1.1);
+      background: var(--brand-deep);
+    }
+    .custom-map-pin.active {
+      background: #111a13;
+      color: #a7f3d0;
+      border-color: var(--brand-primary);
+      transform: scale(1.15);
+    }
+
+    /* Floating Map Controls */
+    .map-floating-overlay {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 8px 14px;
+      border-radius: var(--radius-full);
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--brand-deep);
+      box-shadow: var(--shadow-card);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Bottom Nav Bar for Mobile */
+    .bottom-nav-bar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 430px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(14px);
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
+      z-index: 900;
+    }
+    body.view-desktop .bottom-nav-bar {
+      display: none !important;
+    }
+    .nav-tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      background: none;
+      border: none;
+      color: var(--text-subtle);
+      cursor: pointer;
+      padding: 4px 10px;
+      text-decoration: none;
+    }
+    .nav-tab-item.active {
+      color: var(--brand-dark);
+    }
+    .nav-tab-item svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.1;
+    }
+    .nav-tab-label {
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .btn-whatsapp {
+      background: #25d366;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: 11.5px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body class="view-desktop">
+
+  <!-- Floating Switcher -->
+  <aside class="view-switcher-dock">
+    <button class="view-dock-btn" id="btnModeMobile" onclick="setViewMode('mobile')" data-tooltip="📱 Vista Celular">
+      <svg viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
+    </button>
+    <button class="view-dock-btn" id="btnModeTablet" onclick="setViewMode('tablet')" data-tooltip="📲 Vista Tablet">
+      <svg viewBox="0 0 24 24"><rect width="18" height="14" x="3" y="5" rx="2" ry="2"/><path d="M12 15h.01"/></svg>
+    </button>
+    <button class="view-dock-btn active" id="btnModeDesktop" onclick="setViewMode('desktop')" data-tooltip="💻 Vista Web (Split Screen)">
+      <svg viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+    </button>
+  </aside>
+
+  <!-- Shell -->
+  <div class="simulator-shell">
+
+    <!-- Desktop Navbar -->
+    <header class="desktop-navbar">
+      <div class="desktop-navbar-inner">
+        <div class="nav-left-brand">
+          <a href="index.html" style="text-decoration:none;">
+            <span style="font-weight:900; font-size:24px; color:var(--brand-deep);">agro<span style="color:var(--brand-primary)">ciudad</span>.com</span>
+          </a>
+          <button class="desktop-town-btn" onclick="alert('Cajicá seleccionado')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+            <span>Cajicá, Cundinamarca</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+        </div>
+
+        <nav class="nav-center-links">
+          <a href="index.html" class="nav-link-item">🏠 Inicio</a>
+          <a href="index.html#cosechas" class="nav-link-item">🌱 Cosechas 24h</a>
+          <a href="mapa.html" class="nav-link-item active">🗺️ Mapa Interactivo</a>
+          <a href="perfil.html" class="nav-link-item">👤 Mi Perfil</a>
+        </nav>
+
+        <div>
+          <button class="nav-post-cta" onclick="alert('Registro de productor')">+ Publicar Finca</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+      <div class="mobile-top-row">
+        <a href="index.html" style="color:#fff; text-decoration:none; font-weight:900; font-size:18px;">AGROCIUDAD</a>
+        <div class="view-mode-toggle-pills">
+          <button class="mode-pill" onclick="setMobileSubTab('list', this)">Lista</button>
+          <button class="mode-pill active" onclick="setMobileSubTab('map', this)">Mapa</button>
+        </div>
+      </div>
+      <div style="font-size:12.5px; color:#d1fae5;">📍 Mapa de Productores y Comercios · Cajicá</div>
+    </header>
+
+    <!-- Split Screen (Desktop) / Vertical Stack (Mobile) -->
+    <div class="split-layout-container">
+      
+      <!-- Left Directory Sidebar -->
+      <aside class="directory-panel" id="directoryPanel">
+        <div class="panel-header-search">
+          <div class="panel-search-box">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="search" id="panelSearch" class="panel-search-input" placeholder="Filtrar por fresas, queso, café..." oninput="handleMapSearch(this.value)" />
+          </div>
+          <div class="category-pills-horizontal">
+            <button class="cat-btn-chip active" onclick="filterMapCat('all', this)">🌾 Todos (6)</button>
+            <button class="cat-btn-chip" onclick="filterMapCat('huerta', this)">🥬 Cosecha</button>
+            <button class="cat-btn-chip" onclick="filterMapCat('lacteos', this)">🧀 Lácteos</button>
+            <button class="cat-btn-chip" onclick="filterMapCat('cafe', this)">☕ Café</button>
+            <button class="cat-btn-chip" onclick="filterMapCat('panaderia', this)">🥖 Panadería</button>
+            <button class="cat-btn-chip" onclick="filterMapCat('artesanias', this)">🍯 Viveros</button>
+          </div>
+        </div>
+
+        <!-- Scrollable Card Items -->
+        <div class="cards-scroll-box" id="mapCardsList">
+          <!-- Populated by JS -->
+        </div>
+      </aside>
+
+      <!-- Right Interactive Map Viewport -->
+      <section class="map-viewport-panel" id="mapSection">
+        <div class="map-floating-overlay">
+          <span>📍 Cajicá, Sabana Centro · 6 Puntos Verificados</span>
+        </div>
+        <div id="leafletMap"></div>
+      </section>
+
+    </div>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="bottom-nav-bar">
+      <a href="index.html" class="nav-tab-item">
+        <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span class="nav-tab-label">Explorar</span>
+      </a>
+      <a href="mapa.html" class="nav-tab-item active">
+        <svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+        <span class="nav-tab-label">Mapa</span>
+      </a>
+      <a href="index.html#cosechas" class="nav-tab-item">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+        <span class="nav-tab-label">Historias</span>
+      </a>
+      <a href="perfil.html" class="nav-tab-item">
+        <svg viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span class="nav-tab-label">Mi Perfil</span>
+      </a>
+    </nav>
+
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // Authentic Map Dataset for Cajicá
+    const mapPlaces = [
+      {
+        id: 0,
+        name: "Finca Agroecológica El Paraíso",
+        kicker: "Productor Familiar Verificado",
+        category: "huerta",
+        icon: "🍓",
+        lat: 4.9312,
+        lng: -74.0321,
+        location: "Vereda Chuntame",
+        distance: "1.2 km",
+        rating: "★ 4.9",
+        image: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=300&q=80",
+        whatsapp: "573101234567"
+      },
+      {
+        id: 1,
+        name: "Quesería Artesanal La Sabana",
+        kicker: "Transformador Local",
+        category: "lacteos",
+        icon: "🧀",
+        lat: 4.9185,
+        lng: -74.0264,
+        location: "Calle 4 # 3-22, Centro",
+        distance: "850 m",
+        rating: "★ 4.8",
+        image: "https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?auto=format&fit=crop&w=300&q=80",
+        whatsapp: "573119876543"
+      },
+      {
+        id: 2,
+        name: "Café Especial La Cumbre",
+        kicker: "Comercio de Origen",
+        category: "cafe",
+        icon: "☕",
+        lat: 4.9250,
+        lng: -74.0385,
+        location: "Vía Cajicá - Tabio Km 2",
+        distance: "1.5 km",
+        rating: "★ 5.0",
+        image: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=300&q=80",
+        whatsapp: "573154445566"
+      },
+      {
+        id: 3,
+        name: "Panadería Doña Rosa",
+        kicker: "Tradición Familiar",
+        category: "panaderia",
+        icon: "🥖",
+        lat: 4.9198,
+        lng: -74.0240,
+        location: "Carrera 5 # 2-45, Centro",
+        distance: "600 m",
+        rating: "★ 4.7",
+        image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=300&q=80",
+        whatsapp: "573123332211"
+      },
+      {
+        id: 4,
+        name: "Vivero & Aromáticas Canelón",
+        kicker: "Vivero Familiar",
+        category: "artesanias",
+        icon: "🪴",
+        lat: 4.9080,
+        lng: -74.0345,
+        location: "Vereda Canelón",
+        distance: "2.4 km",
+        rating: "★ 4.9",
+        image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=300&q=80",
+        whatsapp: "573178889900"
+      },
+      {
+        id: 5,
+        name: "Apicultura Andina & Miel Pura",
+        kicker: "Apicultor Sostenible",
+        category: "artesanias",
+        icon: "🍯",
+        lat: 4.9390,
+        lng: -74.0190,
+        location: "Vereda Río Frío",
+        distance: "3.1 km",
+        rating: "★ 4.9",
+        image: "https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=300&q=80",
+        whatsapp: "573165554433"
+      }
+    ];
+
+    let currentMapCategory = 'all';
+    let currentMapSearch = '';
+    let mapInstance = null;
+    let markersMap = {};
+
+    function initMap() {
+      // Center map on Cajicá, Cundinamarca
+      mapInstance = L.map('leafletMap', {
+        zoomControl: true,
+        scrollWheelZoom: true
+      }).setView([4.9215, -74.0295], 14);
+
+      // Clean CartoDB Voyager tiles (modern, legible, high contrast)
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap &copy; CARTO',
+        maxZoom: 19
+      }).addTo(mapInstance);
+
+      renderMarkers();
+    }
+
+    function renderMarkers() {
+      // Clear existing
+      Object.values(markersMap).forEach(m => mapInstance.removeLayer(m));
+      markersMap = {};
+
+      const filtered = getFilteredPlaces();
+
+      filtered.forEach(p => {
+        const customIcon = L.divIcon({
+          className: 'custom-pin-wrap',
+          html: `<div class="custom-map-pin" id="pin-${p.id}"><span>${p.icon}</span> <span>${p.name.split(' ')[0]}</span></div>`,
+          iconSize: [80, 32],
+          iconAnchor: [40, 16]
+        });
+
+        const marker = L.marker([p.lat, p.lng], { icon: customIcon }).addTo(mapInstance);
+        
+        const popupContent = `
+          <div style="font-family:'Plus Jakarta Sans',sans-serif; width:190px;">
+            <img src="${p.image}" style="width:100%; height:90px; object-fit:cover; border-radius:8px; margin-bottom:6px;" />
+            <span style="font-size:10px; font-weight:800; color:var(--brand-dark); text-transform:uppercase;">${p.kicker}</span>
+            <h4 style="font-size:13px; font-weight:800; margin:2px 0 4px; color:#111;">${p.name}</h4>
+            <div style="font-size:11px; color:#666; margin-bottom:8px;">📍 ${p.location} (A ${p.distance})</div>
+            <a href="https://wa.me/${p.whatsapp}" target="_blank" class="btn-whatsapp" style="text-decoration:none; width:100%; justify-content:center;">💬 WhatsApp</a>
+          </div>
+        `;
+        marker.bindPopup(popupContent);
+        marker.on('click', () => highlightCard(p.id));
+
+        markersMap[p.id] = marker;
+      });
+
+      renderCardsList(filtered);
+    }
+
+    function getFilteredPlaces() {
+      return mapPlaces.filter(p => {
+        const matchCat = currentMapCategory === 'all' || p.category === currentMapCategory;
+        const q = currentMapSearch.toLowerCase().trim();
+        const matchQ = !q || p.name.toLowerCase().includes(q) || p.location.toLowerCase().includes(q);
+        return matchCat && matchQ;
+      });
+    }
+
+    function renderCardsList(places) {
+      const box = document.getElementById('mapCardsList');
+      box.innerHTML = '';
+
+      if (places.length === 0) {
+        box.innerHTML = `<p style="padding:24px; text-align:center; color:#888;">No hay productores para este filtro.</p>`;
+        return;
+      }
+
+      places.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'map-listing-card';
+        card.id = `card-${p.id}`;
+        card.onclick = () => focusPlaceOnMap(p.id);
+
+        card.innerHTML = `
+          <img src="${p.image}" alt="${p.name}" class="map-card-thumb" />
+          <div class="map-card-info">
+            <div>
+              <span class="map-card-kicker">${p.kicker}</span>
+              <h4 class="map-card-title">${p.name}</h4>
+              <p class="map-card-meta">📍 ${p.location} · <strong>${p.distance}</strong></p>
+            </div>
+            <div class="map-card-footer">
+              <span style="font-size:11.5px; font-weight:800; color:#b25e00;">${p.rating}</span>
+              <button class="btn-whatsapp" onclick="event.stopPropagation(); window.open('https://wa.me/${p.whatsapp}', '_blank')">WhatsApp</button>
+            </div>
+          </div>
+        `;
+        box.appendChild(card);
+      });
+    }
+
+    function focusPlaceOnMap(id) {
+      const p = mapPlaces.find(x => x.id === id);
+      if (!p || !mapInstance) return;
+
+      mapInstance.flyTo([p.lat, p.lng], 15, { duration: 0.8 });
+      if (markersMap[id]) {
+        markersMap[id].openPopup();
+      }
+      highlightCard(id);
+    }
+
+    function highlightCard(id) {
+      document.querySelectorAll('.map-listing-card').forEach(c => c.classList.remove('highlighted'));
+      const activeCard = document.getElementById(`card-${id}`);
+      if (activeCard) {
+        activeCard.classList.add('highlighted');
+        activeCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      document.querySelectorAll('.custom-map-pin').forEach(pin => pin.classList.remove('active'));
+      const activePin = document.getElementById(`pin-${id}`);
+      if (activePin) activePin.classList.add('active');
+    }
+
+    function filterMapCat(cat, el) {
+      currentMapCategory = cat;
+      document.querySelectorAll('.cat-btn-chip').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      renderMarkers();
+    }
+
+    function handleMapSearch(val) {
+      currentMapSearch = val;
+      renderMarkers();
+    }
+
+    function setMobileSubTab(tab, btn) {
+      document.querySelectorAll('.mode-pill').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const dir = document.getElementById('directoryPanel');
+      const map = document.getElementById('mapSection');
+
+      if (tab === 'list') {
+        dir.style.display = 'block';
+        map.style.display = 'none';
+      } else {
+        dir.style.display = 'block';
+        map.style.display = 'block';
+        if (mapInstance) mapInstance.invalidateSize();
+      }
+    }
+
+    // View Mode Toggle
+    function setViewMode(mode) {
+      const body = document.body;
+      const btnM = document.getElementById('btnModeMobile');
+      const btnT = document.getElementById('btnModeTablet');
+      const btnD = document.getElementById('btnModeDesktop');
+
+      body.classList.remove('view-mobile', 'view-tablet', 'view-desktop');
+      btnM.classList.remove('active');
+      btnT.classList.remove('active');
+      btnD.classList.remove('active');
+
+      if (mode === 'tablet') {
+        body.classList.add('view-tablet');
+        btnT.classList.add('active');
+      } else if (mode === 'desktop') {
+        body.classList.add('view-desktop');
+        btnD.classList.add('active');
+      } else {
+        body.classList.add('view-mobile');
+        btnM.classList.add('active');
+      }
+
+      setTimeout(() => {
+        if (mapInstance) mapInstance.invalidateSize();
+      }, 350);
+    }
+
+    window.addEventListener('DOMContentLoaded', initMap);
+  </script>
+</body>
+</html>

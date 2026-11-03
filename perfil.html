@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
+  <title>Agrociudad — Mi Perfil de Usuario & Gestión de Finca</title>
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#00572b" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#042914" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --brand-primary: #00a651;
+      --brand-dark: #007a3b;
+      --brand-deep: #04381d;
+      --brand-light: #eaf8ef;
+      
+      --accent-warm: #e88d24;
+      --bg-page: #f6f5f1;
+      --bg-card: #ffffff;
+      --bg-input: #eeede8;
+      
+      --text-ink: #111a13;
+      --text-muted: #4e5e53;
+      --text-subtle: #7d8f83;
+      
+      --border-subtle: #e2e0d6;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 26px;
+      --radius-full: 9999px;
+      
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+      --shadow-card: 0 4px 16px rgba(17, 26, 19, 0.08);
+      --shadow-floating: 0 14px 36px rgba(17, 26, 19, 0.16);
+      
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: #121c15;
+      color: var(--text-ink);
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .simulator-shell {
+      width: 100%;
+      min-height: 100vh;
+      background: var(--bg-page);
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    body.view-mobile .simulator-shell {
+      max-width: 430px;
+      margin: 0 auto;
+      box-shadow: 0 0 55px rgba(0, 0, 0, 0.5);
+    }
+    body.view-tablet .simulator-shell {
+      max-width: 840px;
+      margin: 20px auto;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 0 65px rgba(0, 0, 0, 0.55);
+    }
+    body.view-desktop {
+      background-color: var(--bg-page);
+    }
+    body.view-desktop .simulator-shell {
+      max-width: 100%;
+      width: 100%;
+      margin: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    /* Floating Switcher Dock */
+    .view-switcher-dock {
+      position: fixed;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(17, 26, 19, 0.94);
+      backdrop-filter: blur(16px);
+      padding: 10px 7px;
+      border-radius: var(--radius-full);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: var(--shadow-floating);
+      z-index: 9999;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+    .view-dock-btn {
+      background: transparent;
+      border: none;
+      color: #92ab9b;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+    }
+    .view-dock-btn svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.1;
+    }
+    .view-dock-btn.active {
+      background: var(--brand-primary);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(0, 166, 81, 0.45);
+    }
+
+    /* Desktop Header */
+    .desktop-navbar {
+      display: none;
+      background: #ffffff;
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      height: 72px;
+    }
+    body.view-desktop .desktop-navbar {
+      display: block;
+    }
+    .desktop-navbar-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 36px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-link-item {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav-link-item.active {
+      color: var(--brand-dark);
+      font-weight: 800;
+    }
+
+    /* Mobile Header */
+    .mobile-header {
+      background: linear-gradient(175deg, var(--brand-deep) 0%, var(--brand-dark) 100%);
+      color: #ffffff;
+      padding: 16px 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    body.view-desktop .mobile-header {
+      display: none !important;
+    }
+
+    /* User Role Switcher Banner */
+    .role-switcher-banner {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    .role-toggle-pill {
+      background: var(--bg-page);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      display: flex;
+      gap: 4px;
+    }
+    .role-btn {
+      background: transparent;
+      border: none;
+      padding: 8px 18px;
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .role-btn.active {
+      background: var(--brand-deep);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(4, 56, 29, 0.25);
+    }
+
+    /* Content Container */
+    .profile-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 18px 100px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      width: 100%;
+    }
+    body.view-desktop .profile-container {
+      padding: 36px 36px 60px;
+      gap: 32px;
+    }
+
+    /* Profile Card Header */
+    .user-profile-card {
+      background: #ffffff;
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .user-avatar-img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--brand-light);
+    }
+    .user-info-text h2 {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-ink);
+    }
+    .user-info-text p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+    .user-badge-pill {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      background: var(--brand-light);
+      color: var(--brand-dark);
+      display: inline-block;
+      margin-top: 6px;
+    }
+
+    /* Metrics Grid (For Producer Mode) */
+    .metrics-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .metric-card-box {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      border: 1px solid var(--border-subtle);
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+    .metric-card-box strong {
+      display: block;
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--brand-dark);
+    }
+    .metric-card-box span {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    /* Section Cards */
+    .settings-section-card {
+      background: #ffffff;
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-sm);
+    }
+    .section-headline {
+      font-size: 16.5px;
+      font-weight: 800;
+      color: var(--text-ink);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Favorites / Item Lists */
+    .fav-items-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .fav-item-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      background: var(--bg-page);
+    }
+    .fav-item-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .fav-item-thumb {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+    }
+
+    /* Offline Pack Card */
+    .offline-pack-box {
+      background: var(--brand-light);
+      border: 1px solid rgba(0, 166, 81, 0.25);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .offline-pack-title {
+      font-size: 14.5px;
+      font-weight: 800;
+      color: var(--brand-deep);
+    }
+    .offline-pack-desc {
+      font-size: 12.5px;
+      color: var(--brand-dark);
+      margin-top: 3px;
+    }
+
+    .btn-action-primary {
+      background: var(--brand-primary);
+      color: #ffffff;
+      border: none;
+      padding: 9px 18px;
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    /* Bottom Nav */
+    .bottom-nav-bar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 430px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(14px);
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
+      z-index: 900;
+    }
+    body.view-desktop .bottom-nav-bar {
+      display: none !important;
+    }
+    .nav-tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      background: none;
+      border: none;
+      color: var(--text-subtle);
+      cursor: pointer;
+      padding: 4px 10px;
+      text-decoration: none;
+    }
+    .nav-tab-item.active {
+      color: var(--brand-dark);
+    }
+    .nav-tab-item svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.1;
+    }
+    .nav-tab-label {
+      font-size: 11px;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body class="view-desktop">
+
+  <!-- Floating Switcher -->
+  <aside class="view-switcher-dock">
+    <button class="view-dock-btn" id="btnModeMobile" onclick="setViewMode('mobile')" data-tooltip="📱 Vista Celular">
+      <svg viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
+    </button>
+    <button class="view-dock-btn" id="btnModeTablet" onclick="setViewMode('tablet')" data-tooltip="📲 Vista Tablet">
+      <svg viewBox="0 0 24 24"><rect width="18" height="14" x="3" y="5" rx="2" ry="2"/><path d="M12 15h.01"/></svg>
+    </button>
+    <button class="view-dock-btn active" id="btnModeDesktop" onclick="setViewMode('desktop')" data-tooltip="💻 Vista Web Escritorio">
+      <svg viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+    </button>
+  </aside>
+
+  <div class="simulator-shell">
+
+    <!-- Desktop Navbar -->
+    <header class="desktop-navbar">
+      <div class="desktop-navbar-inner">
+        <a href="index.html" style="text-decoration:none;">
+          <span style="font-weight:900; font-size:24px; color:var(--brand-deep);">agro<span style="color:var(--brand-primary)">ciudad</span>.com</span>
+        </a>
+        <nav style="display:flex; gap:28px;">
+          <a href="index.html" class="nav-link-item">🏠 Inicio</a>
+          <a href="index.html#cosechas" class="nav-link-item">🌱 Cosechas 24h</a>
+          <a href="mapa.html" class="nav-link-item">🗺️ Mapa Interactivo</a>
+          <a href="perfil.html" class="nav-link-item active">👤 Mi Perfil</a>
+        </nav>
+        <div>
+          <button class="btn-action-primary" onclick="alert('Publicar producto')">+ Publicar Cosecha</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+      <a href="index.html" style="color:#fff; text-decoration:none; font-weight:900; font-size:18px;">AGROCIUDAD</a>
+      <span style="font-size:13px; font-weight:700;">Mi Cuenta</span>
+    </header>
+
+    <!-- Interactive Actor Mode Toggle -->
+    <div class="role-switcher-banner">
+      <span style="font-size:13px; font-weight:700; color:var(--text-muted);">Previsualizar como:</span>
+      <div class="role-toggle-pill">
+        <button class="role-btn active" id="btnRoleExplorer" onclick="switchRole('explorer')">👤 Explorador / Vecino</button>
+        <button class="role-btn" id="btnRoleProducer" onclick="switchRole('producer')">🌾 Productor / Finca</button>
+      </div>
+    </div>
+
+    <!-- Main Container -->
+    <main class="profile-container">
+
+      <!-- ============================================== -->
+      <!-- A. VISTA EXPLORADOR (Vecino de la Sabana)      -->
+      <!-- ============================================== -->
+      <div id="viewExplorerContent" style="display: flex; flex-direction: column; gap: 24px;">
+
+        <!-- Explorer Profile Header -->
+        <div class="user-profile-card">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80" alt="Usuario" class="user-avatar-img" />
+          <div class="user-info-text">
+            <h2>Carolina Martínez</h2>
+            <p>📍 Residente en Cajicá · Miembro desde Enero 2026</p>
+            <span class="user-badge-pill">Cuenta Personal de Explorador</span>
+          </div>
+        </div>
+
+        <!-- Offline Package Manager -->
+        <section class="settings-section-card">
+          <div class="section-headline">
+            <span>📦 Paquete Offline PWA (Sin Internet)</span>
+            <span style="font-size:12px; color:var(--brand-dark); font-weight:700;">Activo</span>
+          </div>
+          <div class="offline-pack-box">
+            <div>
+              <div class="offline-pack-title">Municipio de Cajicá Descargado (124 Negocios)</div>
+              <div class="offline-pack-desc">8.4 MB guardados en tu dispositivo · Podés consultar mapas, teléfonos y direcciones en veredas sin cobertura móvil.</div>
+            </div>
+            <button class="btn-action-primary" style="background:#ffffff; color:var(--brand-deep); border:1px solid rgba(0,0,0,0.1);" onclick="alert('Paquete de Cajicá actualizado con éxito')">
+              Actualizar
+            </button>
+          </div>
+        </section>
+
+        <!-- Favorited Producers -->
+        <section class="settings-section-card">
+          <div class="section-headline">
+            <span>💚 Mis Productores Guardados (3)</span>
+            <a href="mapa.html" style="font-size:13px; color:var(--brand-dark); text-decoration:none;">Ver en mapa →</a>
+          </div>
+
+          <div class="fav-items-list">
+            <div class="fav-item-row">
+              <div class="fav-item-left">
+                <img src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=120&q=80" class="fav-item-thumb" />
+                <div>
+                  <h4 style="font-size:14px; font-weight:800;">Finca Agroecológica El Paraíso</h4>
+                  <p style="font-size:12px; color:var(--text-muted);">Vereda Chuntame · Fresas y huevos</p>
+                </div>
+              </div>
+              <button class="btn-action-primary" style="background:#25d366; font-size:12px;" onclick="window.open('https://wa.me/573101234567')">WhatsApp</button>
+            </div>
+
+            <div class="fav-item-row">
+              <div class="fav-item-left">
+                <img src="https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?auto=format&fit=crop&w=120&q=80" class="fav-item-thumb" />
+                <div>
+                  <h4 style="font-size:14px; font-weight:800;">Quesería Artesanal La Sabana</h4>
+                  <p style="font-size:12px; color:var(--text-muted);">Cajicá Centro · Queso madurado</p>
+                </div>
+              </div>
+              <button class="btn-action-primary" style="background:#25d366; font-size:12px;" onclick="window.open('https://wa.me/573119876543')">WhatsApp</button>
+            </div>
+
+            <div class="fav-item-row">
+              <div class="fav-item-left">
+                <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=120&q=80" class="fav-item-thumb" />
+                <div>
+                  <h4 style="font-size:14px; font-weight:800;">Café Especial La Cumbre</h4>
+                  <p style="font-size:12px; color:var(--text-muted);">Vía Tabio Km 2 · Tostión local</p>
+                </div>
+              </div>
+              <button class="btn-action-primary" style="background:#25d366; font-size:12px;" onclick="window.open('https://wa.me/573154445566')">WhatsApp</button>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- ============================================== -->
+      <!-- B. VISTA PRODUCTOR (Dueño de Finca / Negocio)  -->
+      <!-- ============================================== -->
+      <div id="viewProducerContent" style="display: none; flex-direction: column; gap: 24px;">
+
+        <!-- Producer Farm Header -->
+        <div class="user-profile-card">
+          <img src="https://images.unsplash.com/photo-1595273670150-bd0c3c392e46?auto=format&fit=crop&w=200&q=80" alt="Finca" class="user-avatar-img" />
+          <div class="user-info-text">
+            <h2>Finca Agroecológica El Paraíso</h2>
+            <p>📍 Vereda Chuntame, Cajicá · Familia Morales</p>
+            <span class="user-badge-pill" style="background:#fff8e6; color:#b25e00; border:1px solid #fae8b8;">★ Productor Familiar Verificado</span>
+          </div>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="metrics-summary-grid">
+          <div class="metric-card-box">
+            <strong>342</strong>
+            <span>Visitas al Perfil (30d)</span>
+          </div>
+          <div class="metric-card-box">
+            <strong style="color:#25d366;">48</strong>
+            <span>Contactos WhatsApp</span>
+          </div>
+          <div class="metric-card-box">
+            <strong style="color:var(--accent-warm);">18</strong>
+            <span>Historias Vistas</span>
+          </div>
+        </div>
+
+        <!-- Publish Story / Harvest Section -->
+        <section class="settings-section-card" style="background: linear-gradient(135deg, #f0fbf4 0%, #ffffff 100%); border-color: rgba(0,166,81,0.3);">
+          <div class="section-headline">
+            <span>🌱 Cosecha del Día (Historia 24h)</span>
+            <span style="font-size:12px; color:#25d366; font-weight:800;">● Publicada hace 3h</span>
+          </div>
+          <p style="font-size:13.5px; color:var(--text-muted); margin-bottom:14px;">
+            "¡Recién cosechadas las fresas de altura en Chuntame! Entregas hoy en el centro." (Expirará en 21 horas).
+          </p>
+          <button class="btn-action-primary" onclick="alert('Abriendo selector de foto para subir nueva historia')">
+            + Publicar Nueva Cosecha del Día
+          </button>
+        </section>
+
+        <!-- Product Catalog Management -->
+        <section class="settings-section-card">
+          <div class="section-headline">
+            <span>🧺 Catálogo de Productos Disponibles</span>
+            <button class="btn-action-primary" style="padding:6px 14px; font-size:12px;" onclick="alert('Agregar nuevo producto')">+ Agregar</button>
+          </div>
+
+          <div class="fav-items-list">
+            <div class="fav-item-row">
+              <div class="fav-item-left">
+                <span style="font-size:24px;">🍓</span>
+                <div>
+                  <h4 style="font-size:14px; font-weight:800;">Fresas Hidropónicas de Altura</h4>
+                  <p style="font-size:12px; color:var(--text-muted);">$12.000 / Kg · En cosecha hoy</p>
+                </div>
+              </div>
+              <span style="font-size:11.5px; font-weight:800; color:var(--brand-dark);">Activo</span>
+            </div>
+
+            <div class="fav-item-row">
+              <div class="fav-item-left">
+                <span style="font-size:24px;">🥚</span>
+                <div>
+                  <h4 style="font-size:14px; font-weight:800;">Huevos Criollos de Pastoreo</h4>
+                  <p style="font-size:12px; color:var(--text-muted);">$18.000 / Panal 30 un · Disponible</p>
+                </div>
+              </div>
+              <span style="font-size:11.5px; font-weight:800; color:var(--brand-dark);">Activo</span>
+            </div>
+
+            <div class="fav-item-row">
+              <div class="fav-item-left">
+                <span style="font-size:24px;">🥬</span>
+                <div>
+                  <h4 style="font-size:14px; font-weight:800;">Lechugas Orgánicas Variadas</h4>
+                  <p style="font-size:12px; color:var(--text-muted);">$4.500 / Unidad · Hidropónica limpia</p>
+                </div>
+              </div>
+              <span style="font-size:11.5px; font-weight:800; color:var(--brand-dark);">Activo</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Membership Status -->
+        <section class="settings-section-card">
+          <div class="section-headline">
+            <span>⭐ Membresía y Plan Agrociudad</span>
+            <span style="font-size:12px; color:var(--brand-dark); font-weight:800;">Plan Productor</span>
+          </div>
+          <p style="font-size:13px; color:var(--text-muted); line-height:1.5;">
+            Tu perfil cuenta con insignia de <strong>Productor Verificado</strong>, enlace y botón directo de WhatsApp sin intermediarios, historias ilimitadas de cosecha y presencia en el mapa satelital de Cajicá.
+          </p>
+        </section>
+
+      </div>
+
+    </main>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="bottom-nav-bar">
+      <a href="index.html" class="nav-tab-item">
+        <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span class="nav-tab-label">Explorar</span>
+      </a>
+      <a href="mapa.html" class="nav-tab-item">
+        <svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+        <span class="nav-tab-label">Mapa</span>
+      </a>
+      <a href="index.html#cosechas" class="nav-tab-item">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+        <span class="nav-tab-label">Historias</span>
+      </a>
+      <a href="perfil.html" class="nav-tab-item active">
+        <svg viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span class="nav-tab-label">Mi Perfil</span>
+      </a>
+    </nav>
+
+  </div>
+
+  <script>
+    function switchRole(role) {
+      const expBtn = document.getElementById('btnRoleExplorer');
+      const prodBtn = document.getElementById('btnRoleProducer');
+      const expContent = document.getElementById('viewExplorerContent');
+      const prodContent = document.getElementById('viewProducerContent');
+
+      if (role === 'producer') {
+        prodBtn.classList.add('active');
+        expBtn.classList.remove('active');
+        prodContent.style.display = 'flex';
+        expContent.style.display = 'none';
+      } else {
+        expBtn.classList.add('active');
+        prodBtn.classList.remove('active');
+        expContent.style.display = 'flex';
+        prodContent.style.display = 'none';
+      }
+    }
+
+    function setViewMode(mode) {
+      const body = document.body;
+      const btnM = document.getElementById('btnModeMobile');
+      const btnT = document.getElementById('btnModeTablet');
+      const btnD = document.getElementById('btnModeDesktop');
+
+      body.classList.remove('view-mobile', 'view-tablet', 'view-desktop');
+      btnM.classList.remove('active');
+      btnT.classList.remove('active');
+      btnD.classList.remove('active');
+
+      if (mode === 'tablet') {
+        body.classList.add('view-tablet');
+        btnT.classList.add('active');
+      } else if (mode === 'desktop') {
+        body.classList.add('view-desktop');
+        btnD.classList.add('active');
+      } else {
+        body.classList.add('view-mobile');
+        btnM.classList.add('active');
+      }
+    }
+  </script>
+</body>
+</html>
